@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Amelia &amp; Brice Dating Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+  --shell:#2c6e6b;
+  --shell-light:#3f8f8a;
+  --shell-dark:#1f4f4d;
+  --cream:#fff6ec;
+  --raspberry:#c8385a;
+  --raspberry-dark:#9e2a40;
+  --gold:#f2b134;
+  --gold-dark:#cf932a;
+  --ink:#3a2a2e;
+  --pink-soft:#ffe3e6;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle at 50% 0%, #ffdcc4 0%, #f7b6c2 38%, #c8385a 100%);
+  font-family:'Nunito',sans-serif;
+  color:var(--ink);
+  padding:32px 14px;
+}
+
+h1,h2,.fredoka{font-family:'Fredoka',sans-serif;}
+
+/* ---------- TV SHELL ---------- */
+.tv-wrap{width:100%;max-width:440px;}
+
+.antennas{position:relative;height:34px;}
+.antenna{
+  position:absolute;width:4px;height:42px;background:var(--gold);
+  border-radius:4px;top:-26px;transform-origin:bottom center;
+}
+.antenna::after{
+  content:'';position:absolute;top:-7px;left:-3px;width:10px;height:10px;
+  border-radius:50%;background:var(--gold);
+}
+.antenna.left{left:36%;transform:rotate(-24deg);}
+.antenna.right{left:60%;transform:rotate(24deg);}
+
+.tv-shell{
+  background:linear-gradient(160deg, var(--shell-light), var(--shell) 55%, var(--shell-dark));
+  border-radius:30px;
+  padding:16px 14px 22px;
+  box-shadow:0 24px 50px rgba(0,0,0,.35), inset 0 0 0 4px rgba(255,255,255,.08);
+  position:relative;
+}
+
+.screen-frame{
+  background:var(--shell-dark);
+  border-radius:18px;
+  padding:9px;
+  box-shadow:inset 0 0 0 3px rgba(0,0,0,.25);
+}
+
+.screen{
+  background:var(--cream);
+  border-radius:13px;
+  min-height:500px;
+  position:relative;
+  overflow:hidden;
+  padding:32px 20px 22px;
+  display:flex;
+  flex-direction:column;
+}
+
+.scanlines{
+  position:absolute;inset:0;pointer-events:none;border-radius:13px;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 2px, transparent 4px);
+}
+
+.channel-bug{
+  position:absolute;top:10px;left:12px;z-index:5;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+  color:var(--shell-dark);background:var(--gold);
+  padding:3px 9px;border-radius:8px;
+}
+
+.on-air{
+  position:absolute;top:11px;right:12px;z-index:5;
+  display:flex;align-items:center;gap:6px;
+  font-size:10.5px;font-weight:600;letter-spacing:.08em;color:var(--raspberry-dark);
+}
+.on-air .dot{
+  width:8px;height:8px;border-radius:50%;background:var(--raspberry);
+  box-shadow:0 0 8px var(--raspberry);animation:blink 1.6s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+
+.tv-base{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 10px 0;
+}
+.knob{
+  width:30px;height:30px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, var(--gold), var(--gold-dark));
+  box-shadow:0 2px 4px rgba(0,0,0,.3), inset 0 0 0 2px rgba(0,0,0,.15);
+  position:relative;
+}
+.knob::after{
+  content:'';position:absolute;top:50%;left:50%;width:2px;height:11px;
+  background:var(--shell-dark);transform:translate(-50%,-100%);border-radius:2px;
+}
+.brand{
+  font-family:'Fredoka',sans-serif;font-size:11px;letter-spacing:.08em;
+  color:rgba(255,255,255,.55);font-weight:600;
+}
+
+/* ---------- CARDS ---------- */
+.card{display:none;flex:1;flex-direction:column;justify-content:center;text-align:center;}
+.card.active{display:flex;animation:fadeIn .4s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.eyebrow{
+  font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--raspberry);
+  margin:0 0 6px;
+}
+.show-title{
+  font-size:clamp(22px,7vw,27px);line-height:1.15;margin:0 0 10px;color:var(--ink);
+  font-weight:700;
+}
+.show-sub{font-size:14.5px;color:#6b5458;margin:0 0 26px;font-weight:600;}
+
+.btn{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;
+  border:none;border-radius:16px;cursor:pointer;
+  padding:14px 22px;
+  background:var(--raspberry);color:#fff;
+  box-shadow:0 5px 0 var(--raspberry-dark);
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--raspberry-dark);}
+.btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+
+.start-btn{align-self:center;font-size:17px;padding:16px 30px;}
+
+/* ---------- PROGRESS ---------- */
+.progress-row{
+  display:flex;justify-content:center;gap:7px;margin-bottom:22px;
+}
+.heart-pip{font-size:16px;opacity:.25;transition:opacity .25s ease, transform .25s ease;}
+.heart-pip.filled{opacity:1;transform:scale(1.15);}
+
+/* ---------- QUESTION ---------- */
+.bonus-ribbon{
+  display:inline-block;background:var(--gold);color:var(--shell-dark);
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:11.5px;
+  letter-spacing:.06em;padding:4px 12px;border-radius:20px;margin-bottom:10px;
+  align-self:center;
+}
+.question-text{
+  font-size:clamp(17px,5vw,19.5px);font-weight:800;margin:0 0 22px;
+  line-height:1.35;color:var(--ink);
+}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option-btn{
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:14.5px;
+  text-align:left;border:2px solid transparent;border-radius:14px;
+  background:var(--pink-soft);color:var(--ink);
+  padding:13px 16px;cursor:pointer;transition:.15s ease;
+}
+.option-btn:hover{border-color:var(--raspberry);transform:translateX(2px);}
+.option-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+.option-btn.bonus{background:#fff3d6;}
+.option-btn.bonus:hover{border-color:var(--gold-dark);}
+
+/* ---------- RESULT ---------- */
+.stamp{
+  width:128px;height:128px;border-radius:50%;
+  border:3px dashed var(--gold-dark);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  margin:0 auto 18px;transform:rotate(-7deg);
+  background:#fff9ec;
+}
+.stamp b{font-family:'Fredoka',sans-serif;font-size:20px;color:var(--raspberry);line-height:1;}
+.stamp span{font-size:10.5px;font-weight:700;letter-spacing:.1em;color:var(--gold-dark);margin-top:4px;}
+.result-title{font-size:clamp(20px,6vw,24px);font-weight:700;margin:0 0 8px;}
+.result-sub{font-size:14px;color:#6b5458;font-weight:600;margin:0 0 24px;line-height:1.5;}
+.signature{font-size:11.5px;color:#a98f93;margin-top:18px;font-style:italic;}
+
+.confetti-piece{position:absolute;top:-22px;font-size:18px;pointer-events:none;}
+
+@media (prefers-reduced-motion: reduce){
+  .card.active{animation:none;}
+  .on-air .dot{animation:none;opacity:1;}
+  .confetti-piece{animation:none!important;display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="tv-wrap">
+  <div class="antennas">
+    <div class="antenna left"></div>
+    <div class="antenna right"></div>
+  </div>
+
+  <div class="tv-shell">
+    <div class="screen-frame">
+      <div class="screen" id="screen">
+        <div class="channel-bug">CH·02 LOVE TV</div>
+        <div class="on-air"><span class="dot"></span>ON AIR</div>
+
+        <!-- INTRO -->
+        <section class="card active" id="card-intro">
+          <p class="eyebrow">TONIGHT'S SPECIAL EPISODE</p>
+          <h1 class="show-title">The Amelia &amp; Brice<br>Dating Game</h1>
+          <p class="show-sub">Starring contestant: AMELIA 🎀<br>Category: Perfect Dates with Brice</p>
+          <button class="btn start-btn" id="start-btn">Press Start 💌</button>
+        </section>
+
+        <!-- QUIZ -->
+        <section class="card" id="card-quiz">
+          <div class="progress-row" id="progress-row"></div>
+          <div id="bonus-slot"></div>
+          <h2 class="question-text" id="question-text"></h2>
+          <div class="options" id="options"></div>
+        </section>
+
+        <!-- RESULT -->
+        <section class="card" id="card-result">
+          <div class="stamp"><b>100%</b><span>APPROVED</span></div>
+          <h2 class="result-title">It's a Match!</h2>
+          <p class="result-sub" id="result-text"></p>
+          <button class="btn" id="replay-btn">Watch It Again 🔁</button>
+          <p class="signature">— certified by Love-Tron 3000</p>
+        </section>
+
+        <div class="scanlines"></div>
+      </div>
+    </div>
+
+    <div class="tv-base">
+      <div class="knob" title="VOL"></div>
+      <div class="brand">LOVE-TRON 3000</div>
+      <div class="knob" title="CH"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "First things first — what's Brice's opening move on date night?",
+    options: [
+      "He shows up 10 minutes early with your favorite snack already in hand",
+      "He's planned a secret itinerary and refuses to give a single hint",
+      "He texts 'wear comfy shoes' and that's the only clue you get",
+      "He shows up, looks at you, and immediately forgets the plan"
+    ]
+  },
+  {
+    q: "Pick the venue for the perfect Amelia &amp; Brice date:",
+    options: [
+      "A blanket fort that took him 45 minutes to build correctly",
+      "A fancy restaurant where he definitely mispronounces the menu",
+      "Literally anywhere, as long as you're both laughing",
+      "The couch, a pizza, and a movie neither of you finishes"
+    ]
+  },
+  {
+    q: "What's playing in the background?",
+    options: [
+      "A love song he swears he 'just happened' to have queued up",
+      "Nothing — he's too busy staring at you to remember music exists",
+      "A playlist secretly titled 'songs that remind me of Amelia'",
+      "Whatever's on, because honestly neither of you is listening"
+    ]
+  },
+  {
+    q: "Mid-date, Brice goes quiet for a second. What's he thinking?",
+    options: [
+      "'How did I get this lucky'",
+      "Running through his mental list of dad jokes for later",
+      "Wondering if it's too soon to ask for date number two... tonight",
+      "All of the above, at once, while smiling like an idiot"
+    ]
+  },
+  {
+    q: "How does the perfect date end?",
+    options: [
+      "A goodnight kiss that lasts suspiciously long",
+      "Falling asleep mid-movie, still holding hands",
+      "Him texting you before he's even reached his car",
+      "Already planning date number two before this one's over"
+    ]
+  },
+  {
+    bonus: true,
+    q: "🚨 BONUS ROUND 🚨 — Who loves you the most?",
+    options: ["Brice", "Also Brice", "100% Brice, no contest", "Brice. Obviously. Next question."]
+  }
+];
+
+const screen = document.getElementById('screen');
+const cardIntro = document.getElementById('card-intro');
+const cardQuiz = document.getElementById('card-quiz');
+const cardResult = document.getElementById('card-result');
+const progressRow = document.getElementById('progress-row');
+const bonusSlot = document.getElementById('bonus-slot');
+const questionText = document.getElementById('question-text');
+const optionsEl = document.getElementById('options');
+const resultText = document.getElementById('result-text');
+
+let current = 0;
+
+function buildProgress(){
+  progressRow.innerHTML = '';
+  questions.forEach((_, i) => {
+    const span = document.createElement('span');
+    span.className = 'heart-pip' + (i < current ? ' filled' : '');
+    span.textContent = '♥';
+    progressRow.appendChild(span);
+  });
+}
+
+function showCard(card){
+  [cardIntro, cardQuiz, cardResult].forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+}
+
+function renderQuestion(){
+  const item = questions[current];
+  buildProgress();
+  bonusSlot.innerHTML = item.bonus ? '<span class="bonus-ribbon">Lightning Round</span>' : '';
+  questionText.innerHTML = item.q;
+  optionsEl.innerHTML = '';
+  item.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (item.bonus ? ' bonus' : '');
+    btn.textContent = opt;
+    btn.addEventListener('click', nextQuestion);
+    optionsEl.appendChild(btn);
+  });
+}
+
+function nextQuestion(){
+  current++;
+  if (current >= questions.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult(){
+  buildProgress();
+  resultText.innerHTML = "Compatibility score: <b>Amelia 💞 Brice</b><br>The system searched for a flaw in this relationship.<br>It found none. Case closed.";
+  showCard(cardResult);
+  launchConfetti();
+}
+
+function launchConfetti(){
+  const emojis = ['❤️','💛','⭐','💕','✨'];
+  for (let i = 0; i < 26; i++){
+    const piece = document.createElement('span');
+    piece.className = 'confetti-piece';
+    piece.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    const left = Math.random()*92 + 2;
+    const duration = 2.4 + Math.random()*1.6;
+    const delay = Math.random()*0.6;
+    piece.style.left = left + '%';
+    piece.style.animation = `fall ${duration}s ${delay}s linear forwards`;
+    screen.appendChild(piece);
+    setTimeout(() => piece.remove(), (duration+delay)*1000 + 200);
+  }
+}
+
+const styleSheet = document.styleSheets[0];
+styleSheet.insertRule(`
+  @keyframes fall {
+    to { transform: translateY(520px) rotate(360deg); opacity: 0; }
+  }
+`, styleSheet.cssRules.length);
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  current = 0;
+  showCard(cardQuiz);
+  renderQuestion();
+});
+
+document.getElementById('replay-btn').addEventListener('click', () => {
+  current = 0;
+  showCard(cardIntro);
+});
+</script>
+</body>
+</html>
