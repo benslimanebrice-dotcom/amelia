@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>For Amelia 💗</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --twilight-deep:#160d33;
+    --twilight-mid:#3a1d63;
+    --twilight-warm:#84306f;
+    --rose:#ff7eb3;
+    --rose-soft:#ffb0cf;
+    --gold:#ffd9a0;
+    --cream:#fff4f8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow:hidden;}
+  body{
+    font-family:'Fredoka',system-ui,sans-serif;
+    background:
+      radial-gradient(120% 95% at 50% -5%, var(--twilight-warm) 0%, var(--twilight-mid) 40%, var(--twilight-deep) 82%);
+    color:var(--cream);position:fixed;inset:0;touch-action:none;
+  }
+  /* soft vignette */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:4;
+    background:radial-gradient(120% 120% at 50% 45%, transparent 55%, rgba(11,6,28,.55) 100%);
+  }
+  canvas{display:block;position:fixed;inset:0;}
+
+  #hud{position:fixed;top:0;left:0;right:0;padding:18px 22px;
+    display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:6;}
+  #title{font-family:'Dancing Script',cursive;font-weight:700;font-size:clamp(22px,5vw,34px);
+    color:var(--rose-soft);text-shadow:0 2px 18px rgba(255,126,179,.5);}
+  #right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+  #score{font-weight:600;font-size:clamp(16px,3.4vw,20px);
+    background:rgba(22,13,51,.5);border:1px solid rgba(255,176,207,.35);
+    padding:8px 16px;border-radius:999px;backdrop-filter:blur(8px);
+    display:flex;align-items:center;gap:8px;}
+  #score .pip{color:var(--rose);font-size:1.15em;}
+  #combo{font-family:'Fredoka';font-weight:600;font-size:14px;color:var(--gold);
+    background:rgba(132,48,111,.4);border:1px solid rgba(255,217,160,.4);
+    padding:4px 12px;border-radius:999px;opacity:0;transform:scale(.8);
+    transition:opacity .25s,transform .25s;}
+  #combo.show{opacity:1;transform:scale(1);}
+
+  #notes{position:fixed;top:24%;left:0;right:0;display:flex;flex-direction:column;
+    align-items:center;gap:4px;pointer-events:none;z-index:6;}
+  .note{font-family:'Dancing Script',cursive;font-weight:700;
+    font-size:clamp(22px,5.5vw,38px);color:var(--cream);
+    text-shadow:0 2px 24px rgba(255,126,179,.7);
+    animation:floatUp 2.4s ease-out forwards;}
+  .note.gold{color:var(--gold);text-shadow:0 2px 26px rgba(255,217,160,.85);}
+  @keyframes floatUp{
+    0%{opacity:0;transform:translateY(22px) scale(.85);}
+    18%{opacity:1;transform:translateY(0) scale(1);}
+    78%{opacity:1;}
+    100%{opacity:0;transform:translateY(-46px) scale(1.02);}
+  }
+
+  #hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+    font-size:14px;font-weight:400;color:rgba(255,244,248,.72);
+    background:rgba(22,13,51,.45);padding:8px 18px;border-radius:999px;
+    backdrop-filter:blur(6px);z-index:6;pointer-events:none;white-space:nowrap;transition:opacity .6s;}
+
+  #stick{position:fixed;left:30px;bottom:30px;width:128px;height:128px;border-radius:50%;
+    border:2px solid rgba(255,176,207,.35);background:rgba(22,13,51,.32);backdrop-filter:blur(4px);
+    z-index:7;display:none;touch-action:none;}
+  #stick .nub{position:absolute;top:50%;left:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,var(--rose-soft),var(--rose));
+    box-shadow:0 0 22px rgba(255,126,179,.8);transition:transform .04s linear;}
+
+  .veil{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;padding:28px;gap:18px;
+    background:radial-gradient(120% 90% at 50% 35%, rgba(132,48,111,.42), rgba(22,13,51,.88));
+    backdrop-filter:blur(7px);}
+  .veil.hidden{display:none;}
+  .veil h1{font-family:'Dancing Script',cursive;font-weight:700;font-size:clamp(34px,9vw,66px);
+    line-height:1.05;color:var(--cream);text-shadow:0 4px 30px rgba(255,126,179,.6);}
+  .veil p{font-weight:400;font-size:clamp(15px,4vw,19px);color:rgba(255,244,248,.86);max-width:32ch;line-height:1.55;}
+  .veil .small{font-size:14px;color:rgba(255,244,248,.6);}
+  .veil .sig{font-family:'Dancing Script',cursive;font-weight:700;font-size:clamp(20px,5.5vw,32px);
+    color:var(--gold);text-shadow:0 2px 18px rgba(255,217,160,.55);margin-bottom:-8px;}
+  .veil .signoff{font-family:'Dancing Script',cursive;font-weight:700;font-size:clamp(20px,5vw,28px);
+    color:var(--gold);margin-top:10px;text-shadow:0 2px 18px rgba(255,217,160,.55);}
+  .btn{pointer-events:auto;cursor:pointer;border:none;font-family:'Fredoka',sans-serif;font-weight:600;
+    font-size:18px;color:#3a1d63;background:linear-gradient(135deg,var(--gold),var(--rose-soft));
+    padding:14px 38px;border-radius:999px;box-shadow:0 8px 30px rgba(255,126,179,.45);
+    transition:transform .15s ease,box-shadow .15s ease;}
+  .btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 38px rgba(255,126,179,.6);}
+  .btn:active{transform:translateY(0) scale(.99);}
+  .btn:focus-visible{outline:3px solid var(--cream);outline-offset:3px;}
+
+  #winMsg{opacity:0;transform:translateY(14px) scale(.96);transition:opacity 1.1s ease,transform 1.1s ease;}
+  #winMsg.show{opacity:1;transform:none;}
+  /* love progress bar */
+  #bar{position:fixed;top:60px;right:22px;width:130px;height:6px;border-radius:999px;
+    background:rgba(22,13,51,.55);overflow:hidden;z-index:6;border:1px solid rgba(255,176,207,.25);}
+  #barFill{height:100%;width:0%;border-radius:999px;
+    background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .45s ease;
+    box-shadow:0 0 12px rgba(255,126,179,.7);}
+  /* collect flash */
+  #flash{position:fixed;inset:0;pointer-events:none;z-index:5;opacity:0;transition:opacity .55s ease;}
+  /* guide arrow toward nearest heart */
+  #arrow{position:fixed;left:50%;top:50%;z-index:6;pointer-events:none;opacity:0;
+    transition:opacity .45s;width:0;height:0;
+    border-left:11px solid transparent;border-right:11px solid transparent;
+    border-bottom:20px solid var(--rose-soft);
+    filter:drop-shadow(0 0 9px rgba(255,126,179,.9));}
+  /* weather label */
+  #weather{position:fixed;top:96px;left:50%;transform:translateX(-50%) translateY(-8px);
+    z-index:6;pointer-events:none;font-weight:500;font-size:14px;color:var(--rose-soft);
+    background:rgba(22,13,51,.42);border:1px solid rgba(255,176,207,.28);
+    padding:6px 16px;border-radius:999px;backdrop-filter:blur(6px);
+    opacity:0;transition:opacity .7s,transform .7s;white-space:nowrap;}
+  #weather.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  /* music toggle */
+  #musicBtn{position:fixed;right:24px;bottom:28px;width:50px;height:50px;border-radius:50%;
+    z-index:7;cursor:pointer;border:1px solid rgba(255,176,207,.4);
+    background:rgba(22,13,51,.5);backdrop-filter:blur(6px);color:var(--rose-soft);
+    font-size:20px;display:flex;align-items:center;justify-content:center;
+    transition:transform .15s,color .2s;}
+  #musicBtn:hover{transform:scale(1.08);}
+  #musicBtn.off{color:rgba(255,176,207,.4);}
+  #musicBtn:focus-visible{outline:3px solid var(--cream);outline-offset:3px;}
+  .levelbtns{display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:2px;}
+  .winbtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px;}
+  .btn.ghost{background:rgba(255,255,255,.08);color:var(--cream);box-shadow:none;
+    border:1px solid rgba(255,176,207,.55);}
+  .btn.ghost:hover{background:rgba(255,255,255,.16);}
+  .btn.special{background:linear-gradient(135deg,#ff7eb3,#ffd9a0);color:#3a1d63;
+    box-shadow:0 8px 30px rgba(255,126,179,.5);animation:specialGlow 1.8s ease-in-out infinite;}
+  @keyframes specialGlow{0%,100%{box-shadow:0 8px 26px rgba(255,126,179,.45);}50%{box-shadow:0 10px 40px rgba(255,217,160,.75);}}
+  /* intro fade-in */
+  #fadeover{position:fixed;inset:0;z-index:30;pointer-events:none;background:#160d33;
+    animation:introFade 1.3s ease forwards;}
+  @keyframes introFade{0%{opacity:1;}100%{opacity:0;}}
+  /* HUD left column + level badge */
+  #left{display:flex;flex-direction:column;gap:4px;}
+  #levelBadge{font-weight:500;font-size:12px;color:var(--rose-soft);
+    background:rgba(22,13,51,.45);border:1px solid rgba(255,176,207,.3);
+    padding:3px 12px;border-radius:999px;backdrop-filter:blur(6px);
+    align-self:flex-start;opacity:0;transition:opacity .4s;}
+  #levelBadge.show{opacity:1;}
+  /* score pop on change */
+  #score{transition:transform .18s ease;}
+  #score.pop{transform:scale(1.14);}
+  /* comic bonk words (level 4) */
+  #bonkPop{position:fixed;inset:0;z-index:6;pointer-events:none;}
+  .bonkword{position:absolute;font-family:'Fredoka',sans-serif;font-weight:700;
+    font-size:clamp(28px,7vw,54px);color:#ffe05a;transform:translate(-50%,-50%);
+    text-shadow:2px 2px 0 #b5460f,-2px 2px 0 #b5460f,2px -2px 0 #b5460f,-2px -2px 0 #b5460f,0 6px 16px rgba(0,0,0,.45);
+    animation:bonkPop .8s ease-out forwards;}
+  @keyframes bonkPop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-12deg);}
+    25%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(7deg);}
+    45%{transform:translate(-50%,-50%) scale(1) rotate(-3deg);}
+    100%{opacity:0;transform:translate(-50%,-72%) scale(1) rotate(0deg);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    #winMsg{transition:none;}.btn{transition:none;}.note{animation-duration:1.6s;}
+  }
+</style>
+</head>
+<body>
+<div id="fadeover"></div>
+
+<div id="hud">
+  <div id="left">
+    <div id="title">For Amelia</div>
+    <div id="levelBadge">Level 1</div>
+  </div>
+  <div id="right">
+    <div id="score"><span class="pip" id="pip">♥</span><span id="scoreNum">0 / 14</span></div>
+    <div id="combo">Combo ×2</div>
+  </div>
+</div>
+
+<div id="notes"></div>
+<div id="bonkPop"></div>
+<div id="bar"><div id="barFill"></div></div>
+<div id="flash"></div>
+<div id="arrow"></div>
+<div id="weather"></div>
+<button id="musicBtn" aria-label="Toggle the music">♪</button>
+<div id="hint">Move the light with the arrows / WASD to catch the hearts</div>
+<div id="stick"><div class="nub" id="nub"></div></div>
+
+<div class="veil" id="startVeil">
+  <div class="sig">From Brice, for Amelia 💗</div>
+  <h1>Two little games<br>just for you</h1>
+  <p>Two levels: collect the hearts hidden in the sky, then link the stars in order to draw a heart. Choose where to begin.</p>
+  <div class="levelbtns">
+    <button class="btn" id="lvl1Btn">Level 1 · Hearts in the Sky</button>
+    <button class="btn ghost" id="lvl2Btn">Level 2 · The Constellation</button>
+    <button class="btn ghost" id="lvl3Btn">Level 3 · Heart Rain</button>
+    <button class="btn ghost" id="lvl4Btn">Level 4 · Duke Beating</button>
+    <button class="btn special" id="finaleBtn" style="display:none;">💗 The Final Surprise</button>
+  </div>
+  <div class="small">Arrows / WASD on keyboard &nbsp;•&nbsp; joystick on mobile</div>
+</div>
+
+<div class="veil hidden" id="winVeil">
+  <div id="winMsg">
+    <h1 id="winTitle">Amelia 💗</h1>
+    <p id="winText"></p>
+    <p class="signoff">— Brice</p>
+  </div>
+  <div class="winbtns">
+    <button class="btn ghost" id="replayBtn">Play again</button>
+    <button class="btn" id="nextBtn">Level 2 →</button>
+    <button class="btn ghost" id="menuBtn" style="display:none;">Menu</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  const TOTAL_HEARTS = 14;
+  const GOLDEN_COUNT = 4;
+  const BOUND = 17;
+  const COLLECT_R = 2.2;
+  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const LOVE_NOTES = [
+    "Your smile lights up everything",
+    "I love your laugh",
+    "With you everything is gentler",
+    "You are my greatest adventure",
+    "I think of you constantly",
+    "You are the person I love most",
+    "You make me better",
+    "My favorite place is in your arms",
+    "You are beautiful",
+    "Every day with you is a gift",
+    "You make my heart dance",
+    "I love you, simply",
+    "You are my favorite person",
+    "Forever, you"
+  ];
+  let notePool = [];
+  function nextNote(){
+    if(notePool.length===0) notePool = LOVE_NOTES.slice().sort(()=>Math.random()-0.5);
+    return notePool.pop();
+  }
+
+  // ---------- Renderer / scene ----------
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.toneMapping = THREE.NoToneMapping;
+  document.body.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x2a1550, 0.016);
+
+  const camera = new THREE.PerspectiveCamera(58, window.innerWidth/window.innerHeight, 0.1, 400);
+  camera.position.set(0, 11, 15);
+
+  // ---------- Gradient sky dome ----------
+  const skyTop=new THREE.Color(0x130a30);
+  const skyMid=new THREE.Color(0x3a1860);
+  const skyBot=new THREE.Color(0x86316f);
+  const sky=new THREE.Mesh(new THREE.SphereGeometry(200,32,16),
+    new THREE.ShaderMaterial({ side:THREE.BackSide, depthWrite:false, fog:false,
+      uniforms:{ top:{value:skyTop}, mid:{value:skyMid}, bot:{value:skyBot} },
+      vertexShader:"varying vec3 vP; void main(){ vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }",
+      fragmentShader:"varying vec3 vP; uniform vec3 top; uniform vec3 mid; uniform vec3 bot; void main(){ float h=clamp(normalize(vP).y*0.5+0.5,0.0,1.0); vec3 c = h>0.5 ? mix(mid,top,(h-0.5)*2.0) : mix(bot,mid,h*2.0); gl_FragColor=vec4(c,1.0); }"
+    }));
+  scene.add(sky);
+
+  // ---------- Direct rendering (bloom removed) ----------
+  let composer=null, bloomPass=null;
+  function render(){ renderer.render(scene,camera); }
+
+  scene.add(new THREE.AmbientLight(0xffd9f0, 0.5));
+  const key = new THREE.DirectionalLight(0xffe0c0, 0.7); key.position.set(6,14,8); scene.add(key);
+  const fill = new THREE.DirectionalLight(0x9a6bff, 0.4); fill.position.set(-8,6,-6); scene.add(fill);
+  scene.add(new THREE.HemisphereLight(0xffd0ec, 0x2a1550, 0.4));
+
+  // ---------- Moon ----------
+  const moonTex=(function(){
+    const c=document.createElement('canvas'); c.width=256; c.height=256; const x=c.getContext('2d');
+    const bg=x.createRadialGradient(104,96,18,128,128,150);
+    bg.addColorStop(0,'#fff8e9'); bg.addColorStop(0.55,'#fdeccb'); bg.addColorStop(1,'#eed9ad');
+    x.fillStyle=bg; x.fillRect(0,0,256,256);
+    const craters=[[95,108,32],[152,86,20],[172,150,28],[108,168,24],[70,150,16],[140,158,11],[120,60,10]];
+    x.fillStyle='#cdae80';
+    craters.forEach(cr=>{ x.globalAlpha=0.11; x.beginPath(); x.arc(cr[0],cr[1],cr[2],0,7); x.fill();
+      x.globalAlpha=0.06; x.beginPath(); x.arc(cr[0]-cr[2]*0.25,cr[1]-cr[2]*0.25,cr[2]*0.6,0,7); x.fillStyle='#fff5e0'; x.fill(); x.fillStyle='#cdae80'; });
+    x.globalAlpha=1; return new THREE.CanvasTexture(c);
+  })();
+  const moon = new THREE.Mesh(new THREE.SphereGeometry(6,48,48),
+    new THREE.MeshBasicMaterial({map:moonTex}));
+  moon.position.set(-34,30,-62); moon.rotation.y=-0.6; scene.add(moon);
+  const moonHalo = new THREE.Mesh(new THREE.SphereGeometry(8.2,32,32),
+    new THREE.MeshBasicMaterial({color:0xffe6bf, transparent:true, opacity:0.22, depthWrite:false, blending:THREE.AdditiveBlending}));
+  moonHalo.position.copy(moon.position); scene.add(moonHalo);
+  const moonHalo2 = new THREE.Mesh(new THREE.SphereGeometry(12.5,32,32),
+    new THREE.MeshBasicMaterial({color:0xffd9a8, transparent:true, opacity:0.10, depthWrite:false, blending:THREE.AdditiveBlending}));
+  moonHalo2.position.copy(moon.position); scene.add(moonHalo2);
+
+  // ---------- Stars + fireflies ----------
+  const softDotTex=(function(){
+    const c=document.createElement('canvas'); c.width=64; c.height=64; const x=c.getContext('2d');
+    const g=x.createRadialGradient(32,32,0,32,32,32);
+    g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(0.32,'rgba(255,255,255,0.85)');
+    g.addColorStop(0.7,'rgba(255,255,255,0.22)'); g.addColorStop(1,'rgba(255,255,255,0)');
+    x.fillStyle=g; x.beginPath(); x.arc(32,32,32,0,7); x.fill();
+    return new THREE.CanvasTexture(c);
+  })();
+  function makeStars(count, spread, size, color, opacity){
+    const g=new THREE.BufferGeometry(), pos=new Float32Array(count*3);
+    for(let i=0;i<count;i++){
+      pos[i*3]=(Math.random()-0.5)*spread;
+      pos[i*3+1]=Math.random()*spread*0.5+4;
+      pos[i*3+2]=(Math.random()-0.5)*spread;
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    return new THREE.Points(g, new THREE.PointsMaterial({color,size,map:softDotTex,transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true}));
+  }
+  const stars = makeStars(900,150,0.95,0xfff0d0,0.92); scene.add(stars);
+  const fireflies = makeStars(140,60,0.72,0xffcaa0,0.85); scene.add(fireflies);
+
+  // ---------- Reactive fireflies (drawn to the light) ----------
+  const glowflies=[];
+  const GF_N=reduceMotion?16:30;
+  const flyGeo=new THREE.SphereGeometry(0.12,8,8);
+  for(let i=0;i<GF_N;i++){
+    const m=new THREE.Mesh(flyGeo,new THREE.MeshBasicMaterial({color:0xffd9a0,transparent:true,opacity:0.8,depthWrite:false}));
+    m.position.set((Math.random()-0.5)*2*(BOUND+4), 0.8+Math.random()*4, (Math.random()-0.5)*2*(BOUND+4));
+    scene.add(m);
+    glowflies.push({mesh:m,vx:0,vy:0,vz:0,phase:Math.random()*6.28,sp:1.5+Math.random()*1.5,
+      hx:m.position.x,hy:m.position.y,hz:m.position.z});
+  }
+
+  // ---------- Shooting stars ----------
+  const shooting=[];
+  function spawnShootingStar(){
+    const g=new THREE.Group();
+    const head=new THREE.Mesh(new THREE.SphereGeometry(0.3,8,8),
+      new THREE.MeshBasicMaterial({color:0xfff3d6,transparent:true,opacity:1,depthWrite:false}));
+    const tail=new THREE.Mesh(new THREE.SphereGeometry(0.3,8,8),
+      new THREE.MeshBasicMaterial({color:0xffe0b0,transparent:true,opacity:0.55,blending:THREE.AdditiveBlending,depthWrite:false}));
+    tail.scale.set(8,0.5,0.5); tail.position.x=-3.5;
+    g.add(head); g.add(tail);
+    g.position.set(22+Math.random()*42, 22+Math.random()*16, -28-Math.random()*30);
+    const v=new THREE.Vector3(-(11+Math.random()*8), -(3+Math.random()*3), 0);
+    g.rotation.z=Math.atan2(v.y,v.x);
+    scene.add(g);
+    shooting.push({grp:g,v,life:1,head,tail});
+  }
+  let shootTimer=2+Math.random()*3;
+
+  // ---------- "Amelia" glowing in the sky (after fonts load) ----------
+  let nameSprite=null;
+  function buildNameSprite(){
+    const c=document.createElement('canvas'); c.width=1024; c.height=256;
+    const ctx=c.getContext('2d');
+    ctx.font="700 150px 'Dancing Script', cursive";
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(255,170,210,0.95)'; ctx.shadowBlur=42;
+    ctx.fillStyle='#ffe6f3'; ctx.fillText('Amelia',512,138);
+    const tex=new THREE.CanvasTexture(c);
+    const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:0.42,
+      blending:THREE.AdditiveBlending, depthWrite:false});
+    nameSprite=new THREE.Mesh(new THREE.PlaneGeometry(42,10.5), mat);
+    nameSprite.position.set(2,27,-52);
+    scene.add(nameSprite);
+  }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(buildNameSprite); }
+  else { setTimeout(buildNameSprite,600); }
+
+  // ---------- Ground glow + ring ----------
+  const ground=new THREE.Mesh(new THREE.CircleGeometry(BOUND+7,64),
+    new THREE.MeshBasicMaterial({color:0x4a2270,transparent:true,opacity:0.26}));
+  ground.rotation.x=-Math.PI/2; ground.position.y=-0.6; scene.add(ground);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(BOUND+1.4,BOUND+1.7,96),
+    new THREE.MeshBasicMaterial({color:0xff9ecb,transparent:true,opacity:0.35,side:THREE.DoubleSide}));
+  ring.rotation.x=-Math.PI/2; ring.position.y=-0.55; scene.add(ring);
+
+  // ---------- Moonlit water ----------
+  const water=new THREE.Mesh(new THREE.PlaneGeometry(240,240),
+    new THREE.MeshBasicMaterial({color:0x130a2c,transparent:true,opacity:0.94}));
+  water.rotation.x=-Math.PI/2; water.position.y=-0.78; scene.add(water);
+  const reflTex=(function(){
+    const c=document.createElement('canvas'); c.width=64; c.height=256;
+    const x=c.getContext('2d'); const g=x.createLinearGradient(0,0,0,256);
+    g.addColorStop(0,'rgba(255,235,200,0)'); g.addColorStop(0.5,'rgba(255,228,185,0.6)'); g.addColorStop(1,'rgba(255,235,200,0)');
+    x.fillStyle=g; x.fillRect(0,0,64,256); return new THREE.CanvasTexture(c);
+  })();
+  const refl=new THREE.Mesh(new THREE.PlaneGeometry(7,48),
+    new THREE.MeshBasicMaterial({map:reflTex,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false}));
+  refl.rotation.x=-Math.PI/2; refl.rotation.z=0.32; refl.position.set(-13,-0.76,-16); scene.add(refl);
+  const ripples=[];
+  for(let i=0;i<3;i++){
+    const r=new THREE.Mesh(new THREE.RingGeometry(1,1.22,48),
+      new THREE.MeshBasicMaterial({color:0xff9ecb,transparent:true,opacity:0.28,side:THREE.DoubleSide,depthWrite:false}));
+    r.rotation.x=-Math.PI/2; r.position.y=-0.76; scene.add(r); ripples.push({mesh:r,t:i*0.9});
+  }
+
+  // ---------- Rose petals ----------
+  const petalTex=(function(){
+    const c=document.createElement('canvas'); c.width=64; c.height=64; const x=c.getContext('2d');
+    x.translate(32,34);
+    const g=x.createRadialGradient(0,-4,2,0,2,30);
+    g.addColorStop(0,'rgba(255,214,232,0.97)'); g.addColorStop(0.55,'rgba(255,150,200,0.85)'); g.addColorStop(1,'rgba(255,120,180,0)');
+    x.fillStyle=g;
+    x.beginPath(); x.moveTo(0,20);
+    x.bezierCurveTo(-26,0,-15,-26,0,-9);
+    x.bezierCurveTo(15,-26,26,0,0,20);
+    x.closePath(); x.fill();
+    return new THREE.CanvasTexture(c);
+  })();
+  const petals=[]; const petalGeo=new THREE.PlaneGeometry(0.62,0.66);
+  function resetPetal(m,init){
+    m.position.set((Math.random()-0.5)*2*BOUND, init?Math.random()*22:18+Math.random()*6, (Math.random()-0.5)*2*BOUND);
+    m.userData={fall:1.1+Math.random()*1.6, sway:0.5+Math.random()*1.2, phase:Math.random()*Math.PI*2,
+      rot:(Math.random()-0.5)*1.5};
+    m.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);
+  }
+  const petalCount = reduceMotion?12:22;
+  for(let i=0;i<petalCount;i++){
+    const m=new THREE.Mesh(petalGeo,new THREE.MeshBasicMaterial({map:petalTex,color:0xffd6ea,transparent:true,opacity:0.82,side:THREE.DoubleSide,depthWrite:false}));
+    resetPetal(m,true); scene.add(m); petals.push(m);
+  }
+
+  // ---------- Weather ----------
+  let wind=0;
+  const auroraTex=(function(){
+    const c=document.createElement('canvas'); c.width=256; c.height=128; const x=c.getContext('2d');
+    const g=x.createLinearGradient(0,0,0,128);
+    g.addColorStop(0,'rgba(150,255,210,0)'); g.addColorStop(0.42,'rgba(150,255,210,0.5)');
+    g.addColorStop(0.7,'rgba(255,170,230,0.4)'); g.addColorStop(1,'rgba(255,170,230,0)');
+    x.fillStyle=g; x.fillRect(0,0,256,128); return new THREE.CanvasTexture(c);
+  })();
+  const aurora=new THREE.Mesh(new THREE.PlaneGeometry(150,36),
+    new THREE.MeshBasicMaterial({map:auroraTex,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  aurora.position.set(0,24,-50); scene.add(aurora);
+  let auroraAmt=0, auroraTarget=0;
+
+  const RAIN_N=120;
+  const rainGeo=new THREE.BufferGeometry();
+  const rainPos=new Float32Array(RAIN_N*3), rainSpd=new Float32Array(RAIN_N);
+  for(let i=0;i<RAIN_N;i++){
+    rainPos[i*3]=(Math.random()-0.5)*64; rainPos[i*3+1]=Math.random()*30; rainPos[i*3+2]=(Math.random()-0.5)*64-4;
+    rainSpd[i]=6+Math.random()*8;
+  }
+  rainGeo.setAttribute('position',new THREE.BufferAttribute(rainPos,3));
+  const rain=new THREE.Points(rainGeo,new THREE.PointsMaterial({color:0xffe6f3,size:0.36,transparent:true,opacity:0,depthWrite:false}));
+  scene.add(rain);
+  let rainAmt=0, rainTarget=0;
+
+  const WEATHERS=[
+    {name:"✨ Clear night",       fog:0x2a1550, fogD:0.014, wind:0.0, shoot:[5,9],   rain:0, aurora:0},
+    {name:"🌠 Meteor shower",     fog:0x241048, fogD:0.015, wind:0.0, shoot:[1.2,2.6],rain:0, aurora:0},
+    {name:"🌸 Petal breeze",      fog:0x3a1550, fogD:0.016, wind:3.4, shoot:[6,10],  rain:0, aurora:0},
+    {name:"🌫️ Rose mist",         fog:0x4a1f55, fogD:0.034, wind:0.4, shoot:[7,11],  rain:0, aurora:0},
+    {name:"💧 Sparkle rain",      fog:0x261247, fogD:0.018, wind:0.9, shoot:[6,10],  rain:1, aurora:0},
+    {name:"🌌 Aurora",            fog:0x1e1244, fogD:0.014, wind:0.2, shoot:[5,9],   rain:0, aurora:1}
+  ];
+  let weatherIdx=0;
+  const fogTarget=new THREE.Color(WEATHERS[0].fog); let fogDTarget=WEATHERS[0].fogD, windTarget=0;
+  const weatherEl=document.getElementById('weather');
+  let weatherTimer=16+Math.random()*8;
+  function setWeather(i){
+    const w=WEATHERS[i]; weatherIdx=i;
+    fogTarget.set(w.fog); fogDTarget=w.fogD; windTarget=w.wind; rainTarget=w.rain; auroraTarget=w.aurora;
+    weatherEl.textContent=w.name; weatherEl.classList.add('show');
+    clearTimeout(weatherEl._to); weatherEl._to=setTimeout(()=>weatherEl.classList.remove('show'),3400);
+  }
+
+  // ---------- Player ----------
+  const player=new THREE.Group(); scene.add(player);
+  const core=new THREE.Mesh(new THREE.SphereGeometry(0.7,40,32),
+    new THREE.MeshStandardMaterial({color:0xff8fc0,emissive:0xff4f9e,emissiveIntensity:1.3,roughness:0.28,metalness:0.0}));
+  player.add(core);
+  const innerCore=new THREE.Mesh(new THREE.SphereGeometry(0.36,24,24),
+    new THREE.MeshBasicMaterial({color:0xfff0f6}));
+  player.add(innerCore);
+  const aura=new THREE.Mesh(new THREE.SphereGeometry(0.95,28,28),
+    new THREE.MeshBasicMaterial({color:0xff9ecb,transparent:true,opacity:0.3,depthWrite:false,blending:THREE.AdditiveBlending}));
+  player.add(aura);
+  const halo=new THREE.Mesh(new THREE.SphereGeometry(1.3,24,24),
+    new THREE.MeshBasicMaterial({color:0xffb0cf,transparent:true,opacity:0.2,depthWrite:false,blending:THREE.AdditiveBlending}));
+  player.add(halo);
+  player.add(new THREE.PointLight(0xff9ecb,2.0,22,2));
+  // orbiting sparkles
+  const orbiters=[];
+  for(let i=0;i<4;i++){
+    const o=new THREE.Sprite(new THREE.SpriteMaterial({map:softDotTex,color:0xffe6f3,transparent:true,opacity:0.95,depthWrite:false,blending:THREE.AdditiveBlending}));
+    o.scale.set(0.5,0.5,1);
+    player.add(o); orbiters.push({mesh:o, a:i*(Math.PI*2/4), r:1.5+i*0.18, sp:1.7+i*0.35, tilt:i*0.5});
+  }
+  player.position.set(0,0.4,0);
+
+  // soft light the player casts on the water below
+  const spotTex=(function(){
+    const c=document.createElement('canvas'); c.width=128; c.height=128; const x=c.getContext('2d');
+    const g=x.createRadialGradient(64,64,3,64,64,64);
+    g.addColorStop(0,'rgba(255,180,212,0.85)'); g.addColorStop(0.5,'rgba(255,150,200,0.25)'); g.addColorStop(1,'rgba(255,150,200,0)');
+    x.fillStyle=g; x.fillRect(0,0,128,128); return new THREE.CanvasTexture(c);
+  })();
+  const spot=new THREE.Mesh(new THREE.PlaneGeometry(9,9),
+    new THREE.MeshBasicMaterial({map:spotTex,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false}));
+  spot.rotation.x=-Math.PI/2; spot.position.y=-0.66; scene.add(spot);
+
+  const trail=[], trailPool=[]; const trailGeo=new THREE.SphereGeometry(0.28,10,10);
+  function spawnTrail(){
+    let m=trailPool.pop();
+    if(!m){ m=new THREE.Mesh(trailGeo,new THREE.MeshBasicMaterial({color:0xffb0cf,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})); scene.add(m); }
+    m.visible=true; m.material.opacity=0.5; m.scale.setScalar(1); m.position.copy(player.position);
+    trail.push({mesh:m,life:1});
+  }
+
+  // ---------- Heart geometry ----------
+  function heartGeometry(){
+    const s=new THREE.Shape();
+    s.moveTo(0,0.5);
+    s.bezierCurveTo(0,0.5,-0.5,1.1,-1.1,1.1);
+    s.bezierCurveTo(-2.0,1.1,-2.0,-0.1,-2.0,-0.1);
+    s.bezierCurveTo(-2.0,-0.9,-1.2,-1.7,0,-2.3);
+    s.bezierCurveTo(1.2,-1.7,2.0,-0.9,2.0,-0.1);
+    s.bezierCurveTo(2.0,-0.1,2.0,1.1,1.1,1.1);
+    s.bezierCurveTo(0.5,1.1,0,0.5,0,0.5);
+    const geo=new THREE.ExtrudeGeometry(s,{depth:0.5,bevelEnabled:true,bevelThickness:0.18,bevelSize:0.18,bevelSegments:4,steps:1});
+    geo.center(); geo.scale(0.42,0.42,0.42); return geo;
+  }
+  const HEART_GEO=heartGeometry();
+  // 5-point star (level-2 constellation nodes)
+  const STAR_GEO=(function(){
+    const s=new THREE.Shape(); const outer=1, inner=0.44, spikes=5;
+    for(let i=0;i<spikes*2;i++){
+      const r=i%2===0?outer:inner, a=-Math.PI/2+i*Math.PI/spikes;
+      const px=Math.cos(a)*r, py=Math.sin(a)*r;
+      if(i===0) s.moveTo(px,py); else s.lineTo(px,py);
+    }
+    s.closePath();
+    const g=new THREE.ExtrudeGeometry(s,{depth:0.35,bevelEnabled:true,bevelThickness:0.09,bevelSize:0.09,bevelSegments:2,steps:1});
+    g.center(); g.scale(0.46,0.46,0.46); return g;
+  })();
+  // lightweight heart for particles
+  const PHEART_GEO=(function(){
+    const s=new THREE.Shape();
+    s.moveTo(0,0.5);
+    s.bezierCurveTo(0,0.5,-0.5,1.1,-1.1,1.1);
+    s.bezierCurveTo(-2.0,1.1,-2.0,-0.1,-2.0,-0.1);
+    s.bezierCurveTo(-2.0,-0.9,-1.2,-1.7,0,-2.3);
+    s.bezierCurveTo(1.2,-1.7,2.0,-0.9,2.0,-0.1);
+    s.bezierCurveTo(2.0,-0.1,2.0,1.1,1.1,1.1);
+    s.bezierCurveTo(0.5,1.1,0,0.5,0,0.5);
+    const g=new THREE.ExtrudeGeometry(s,{depth:0.2,bevelEnabled:false,curveSegments:4,steps:1});
+    g.center(); g.scale(0.14,0.14,0.14); return g;
+  })();
+  const heartHues=[0xff5e94,0xff7eb3,0xff96c5,0xff6fae,0xffa6cf,0xff5f8d];
+  const GOLD=0xffd27a;
+
+  const hearts=[];
+  const RUNNER_COUNT=3;
+  function placeHearts(){
+    hearts.forEach(h=>scene.remove(h.group)); hearts.length=0;
+    const goldenIdx=new Set();
+    while(goldenIdx.size<GOLDEN_COUNT) goldenIdx.add(Math.floor(Math.random()*TOTAL_HEARTS));
+    const runnerIdx=new Set();
+    while(runnerIdx.size<RUNNER_COUNT) runnerIdx.add(Math.floor(Math.random()*TOTAL_HEARTS));
+    for(let i=0;i<TOTAL_HEARTS;i++){
+      const golden=goldenIdx.has(i), runner=runnerIdx.has(i);
+      const color=golden?GOLD:heartHues[i%heartHues.length];
+      const mesh=new THREE.Mesh(HEART_GEO,new THREE.MeshStandardMaterial(
+        {color,emissive:color,emissiveIntensity:golden?1.0:0.8,roughness:0.3,metalness:golden?0.25:0.05}));
+      if(golden) mesh.scale.setScalar(1.3);
+      const g=new THREE.Group(); g.add(mesh);
+      const glow=new THREE.Mesh(new THREE.SphereGeometry(golden?1.35:1.05,16,16),
+        new THREE.MeshBasicMaterial({color,transparent:true,opacity:golden?0.22:0.16,depthWrite:false}));
+      g.add(glow);
+      let x,z; do{ x=(Math.random()-0.5)*2*(BOUND-2); z=(Math.random()-0.5)*2*(BOUND-2);}while(Math.hypot(x,z)<4.5);
+      g.position.set(x,1.6+Math.random()*1.8,z);
+      scene.add(g);
+      const ang=Math.random()*6.28;
+      hearts.push({group:g,mesh,glow,golden,color,runner,
+        vx:Math.cos(ang)*2.2, vz:Math.sin(ang)*2.2,
+        baseY:g.position.y,phase:Math.random()*6.28,spin:(runner?1.4:0.6)+Math.random()*0.8,collected:false});
+    }
+  }
+
+  // ---------- Bursts (pooled) ----------
+  const bursts=[], burstPool=[];
+  function burst(pos,color,big){
+    const n=reduceMotion?6:(big?30:16);
+    for(let i=0;i<n;i++){
+      let m=burstPool.pop();
+      if(!m){ m=new THREE.Mesh(PHEART_GEO,new THREE.MeshBasicMaterial({transparent:true,depthWrite:false})); scene.add(m); }
+      m.visible=true; m.material.color.setHex(color); m.material.opacity=1; m.scale.setScalar(1);
+      m.position.copy(pos);
+      m.rotation.set(Math.random()*6.28,Math.random()*6.28,Math.random()*6.28);
+      const a=Math.random()*6.28, e=(Math.random()-0.3)*Math.PI, spd=(big?6:4)+Math.random()*5;
+      bursts.push({mesh:m,
+        vx:Math.cos(a)*Math.cos(e)*spd, vy:(Math.abs(Math.sin(e))+0.4)*spd, vz:Math.sin(a)*Math.cos(e)*spd,
+        sx:(Math.random()-0.5)*7, sy:(Math.random()-0.5)*7, sz:(Math.random()-0.5)*7, life:1});
+    }
+  }
+
+  // ---------- Collect rings (pooled) — expanding shockwave on pickup ----------
+  const rings=[], ringPool=[]; const ringGeo=new THREE.RingGeometry(0.62,0.86,40);
+  function popRing(pos,color,big){
+    let m=ringPool.pop();
+    if(!m){ m=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide})); scene.add(m); }
+    m.visible=true; m.material.color.setHex(color); m.material.opacity=0.85;
+    m.position.copy(pos); m.scale.setScalar(0.4); m.lookAt(camera.position);
+    rings.push({mesh:m,life:1,max:big?7.5:5.2});
+  }
+
+  // ---------- Audio ----------
+  let actx=null;
+  function chime(step,golden){
+    if(!actx) return;
+    const scale=[0,2,4,7,9,12,14,16,19,21,24,26,28,31];
+    const f=523.25*Math.pow(2,(scale[step%scale.length])/12);
+    const o=actx.createOscillator(), gn=actx.createGain();
+    o.type=golden?'triangle':'sine'; o.frequency.value=f;
+    gn.gain.setValueAtTime(0.0001,actx.currentTime);
+    gn.gain.exponentialRampToValueAtTime(golden?0.22:0.16,actx.currentTime+0.02);
+    gn.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+(golden?0.7:0.5));
+    o.connect(gn).connect(actx.destination); o.start(); o.stop(actx.currentTime+0.75);
+    if(golden){ // little sparkle on top
+      const o2=actx.createOscillator(), g2=actx.createGain();
+      o2.type='sine'; o2.frequency.value=f*2;
+      g2.gain.setValueAtTime(0.0001,actx.currentTime+0.05);
+      g2.gain.exponentialRampToValueAtTime(0.1,actx.currentTime+0.08);
+      g2.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.5);
+      o2.connect(g2).connect(actx.destination); o2.start(actx.currentTime+0.05); o2.stop(actx.currentTime+0.55);
+    }
+  }
+  function fanfare(){
+    if(!actx) return;
+    [0,4,7,12,16,19].forEach((semi,i)=>{
+      const o=actx.createOscillator(), gn=actx.createGain();
+      o.type='triangle'; o.frequency.value=523.25*Math.pow(2,semi/12);
+      const t=actx.currentTime+i*0.13;
+      gn.gain.setValueAtTime(0.0001,t);
+      gn.gain.exponentialRampToValueAtTime(0.17,t+0.03);
+      gn.gain.exponentialRampToValueAtTime(0.0001,t+1.0);
+      o.connect(gn).connect(actx.destination); o.start(t); o.stop(t+1.05);
+    });
+  }
+
+  // ---------- Romantic music (procedural) ----------
+  let musicNodes=null, musicOn=true, musicBar=0, musicTimer=null;
+  function bonk(){
+    if(!actx) return;
+    const t=actx.currentTime;
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type='triangle';
+    o.frequency.setValueAtTime(440,t); o.frequency.exponentialRampToValueAtTime(85,t+0.18);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.22,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t+0.22);
+  }
+  function woof(){
+    if(!actx) return;
+    const t=actx.currentTime;
+    for(let k=0;k<2;k++){
+      const tt=t+k*0.13;
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type='sawtooth';
+      o.frequency.setValueAtTime(255,tt); o.frequency.exponentialRampToValueAtTime(120,tt+0.1);
+      g.gain.setValueAtTime(0.0001,tt); g.gain.exponentialRampToValueAtTime(0.16,tt+0.02); g.gain.exponentialRampToValueAtTime(0.0001,tt+0.16);
+      o.connect(g).connect(actx.destination); o.start(tt); o.stop(tt+0.2);
+    }
+  }
+  const A2=110;
+  const CHORDS=[ [0,4,7,11], [7,11,14,17], [9,12,16,19], [5,9,12,16] ]; // Amaj7 · E · F#m7 · Dmaj7
+  function mfreq(semi){ return A2*Math.pow(2,semi/12); }
+  function buildMusic(){
+    if(!actx||musicNodes) return;
+    const master=actx.createGain(); master.gain.value=0;
+    const lp=actx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1900;
+    const delay=actx.createDelay(); delay.delayTime.value=0.38;
+    const fb=actx.createGain(); fb.gain.value=0.26;
+    const wet=actx.createGain(); wet.gain.value=0.32;
+    master.connect(lp); lp.connect(actx.destination);
+    lp.connect(delay); delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(actx.destination);
+    musicNodes={master};
+  }
+  function voice(type,f,t,dur,peak){
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(peak,t+Math.min(0.6,dur*0.25));
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g).connect(musicNodes.master); o.start(t); o.stop(t+dur+0.1);
+  }
+  function playBar(){
+    if(!actx||!musicNodes) return;
+    const t=actx.currentTime, chord=CHORDS[musicBar%CHORDS.length], bar=3.4;
+    chord.forEach(s=>voice('triangle',mfreq(s+12),t,bar,0.05));      // pad
+    [chord[0],chord[2],chord[1],chord[3],chord[2],chord[1]].forEach((s,k)=> // bell arpeggio
+      voice('sine',mfreq(s+24),t+0.2+k*0.5,0.9,0.06));
+    voice('sine',mfreq(chord[0]-12),t,bar,0.06);                     // bass
+    musicBar++; musicTimer=setTimeout(playBar,bar*1000);
+  }
+  function setMusic(on){
+    musicOn=on;
+    const btn=document.getElementById('musicBtn');
+    if(btn){ btn.classList.toggle('off',!on); btn.textContent=on?'♪':'🔇'; }
+    if(musicNodes && actx){
+      musicNodes.master.gain.cancelScheduledValues(actx.currentTime);
+      musicNodes.master.gain.setTargetAtTime(on?0.16:0.0, actx.currentTime, 0.5);
+    }
+  }
+  function startMusic(){
+    if(!actx) return; buildMusic();
+    if(!musicTimer){ musicBar=0; playBar(); }
+    setMusic(musicOn);
+  }
+  document.getElementById('musicBtn').addEventListener('click',()=>{
+    if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    if(actx && actx.state==='suspended') actx.resume();
+    if(!musicTimer) startMusic(); else setMusic(!musicOn);
+  });
+
+  // ---------- Notes + combo UI ----------
+  const notesEl=document.getElementById('notes');
+  function showNote(text,golden){
+    const d=document.createElement('div'); d.className='note'+(golden?' gold':'');
+    d.textContent=golden?('💛 '+text):text;
+    notesEl.appendChild(d);
+    setTimeout(()=>d.remove(),2500);
+  }
+  const comboEl=document.getElementById('combo');
+  const bonkPopEl=document.getElementById('bonkPop');
+  const BONK_WORDS=['BONK!','POW!','BOP!','WHACK!','BOINK!','DOINK!','THWACK!'];
+  function showBonkWord(sx,sy){
+    const d=document.createElement('div'); d.className='bonkword';
+    d.textContent=BONK_WORDS[Math.floor(Math.random()*BONK_WORDS.length)];
+    d.style.left=sx+'px'; d.style.top=sy+'px';
+    bonkPopEl.appendChild(d); setTimeout(()=>d.remove(),800);
+  }
+  let comboHideTO=null;
+  function showCombo(n){
+    comboEl.textContent='Combo ×'+n; comboEl.classList.add('show');
+    comboEl.style.transform='scale(1.18)';
+    requestAnimationFrame(()=>{ comboEl.style.transform=''; });
+    clearTimeout(comboHideTO);
+    comboHideTO=setTimeout(()=>comboEl.classList.remove('show'),1800);
+  }
+
+  // ---------- Input ----------
+  const keys={};
+  addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;});
+  addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+  const move=new THREE.Vector2(0,0);
+  if(isTouch){
+    const stick=document.getElementById('stick'), nub=document.getElementById('nub');
+    stick.style.display='block';
+    let active=false,cx=0,cy=0; const R=44;
+    const start=(x,y)=>{active=true;const r=stick.getBoundingClientRect();cx=r.left+r.width/2;cy=r.top+r.height/2;mv(x,y);};
+    const mv=(x,y)=>{let dx=x-cx,dy=y-cy;const d=Math.hypot(dx,dy);if(d>R){dx=dx/d*R;dy=dy/d*R;}
+      nub.style.transform=`translate(${dx}px,${dy}px)`;move.set(dx/R,dy/R);};
+    const end=()=>{active=false;nub.style.transform='translate(0,0)';move.set(0,0);};
+    stick.addEventListener('touchstart',e=>{e.preventDefault();start(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+    stick.addEventListener('touchmove',e=>{e.preventDefault();if(active)mv(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+    stick.addEventListener('touchend',e=>{e.preventDefault();end();},{passive:false});
+    document.getElementById('hint').textContent='Use the joystick to catch the hearts';
+  }
+
+  // ---------- Finale heart ----------
+  let finale=[], winStart=0;
+  function buildFinale(){
+    finale.forEach(f=>scene.remove(f.mesh)); finale=[];
+    const pts=reduceMotion?28:54;
+    for(let i=0;i<pts;i++){
+      const t=(i/pts)*Math.PI*2;
+      const hx=16*Math.pow(Math.sin(t),3);
+      const hy=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+      const target=new THREE.Vector3(hx*0.32, 7.5+hy*0.32, 0);
+      const col=(i%5===0)?GOLD:heartHues[i%heartHues.length];
+      const m=new THREE.Mesh(HEART_GEO,
+        new THREE.MeshBasicMaterial({color:col}));
+      m.scale.setScalar(0.6); m.rotation.z=(Math.random()-0.5)*0.5;
+      m.position.set((Math.random()-0.5)*34,(Math.random()-0.5)*18+8,(Math.random()-0.5)*12);
+      scene.add(m);
+      finale.push({mesh:m,target,start:m.position.clone()});
+    }
+  }
+
+  // ---------- State ----------
+  let running=false, collected=0, won=false, combo=0, lastCollect=0, camPop=0, camShake=0;
+  const vel=new THREE.Vector3();
+  const _dir=new THREE.Vector3(), _cam=new THREE.Vector3(), _proj=new THREE.Vector3();
+  const scoreNum=document.getElementById('scoreNum'), hint=document.getElementById('hint');
+  const barFill=document.getElementById('barFill'), flashEl=document.getElementById('flash'), arrowEl=document.getElementById('arrow');
+  const scoreEl=document.getElementById('score'), levelBadge=document.getElementById('levelBadge');
+  function popScore(){ scoreEl.classList.add('pop'); setTimeout(()=>scoreEl.classList.remove('pop'),180); }
+  const MAGNET_R=4.6;
+  function flash(rgb){
+    flashEl.style.background=`radial-gradient(120% 120% at 50% 62%, rgba(${rgb},0) 45%, rgba(${rgb},.5) 100%)`;
+    flashEl.style.opacity='1';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ flashEl.style.opacity='0'; }));
+  }
+
+  // ---------- Levels ----------
+  let level=1;
+  const pipEl=document.getElementById('pip');
+
+  // Level 2 — constellation: link stars in order to draw a heart
+  const L2_N=12;
+  let constGroup=null, constStars=[], constThreads=[], constNext=0, growing=[], constRing=null;
+
+  // sweet phrases shown when a star is linked (level 2)
+  const L2_NOTES=[
+    "You are my most beautiful chance",
+    "My heart chooses you every day",
+    "Near you, time stands still",
+    "You are my home",
+    "Your eyes are my favorite sky",
+    "I love you a little more each day",
+    "With you, I belong",
+    "You are my evening sweetness",
+    "You light up even my nights",
+    "My whole universe turns around you",
+    "You are the best thing that ever happened to me",
+    "By your side, everything feels possible"
+  ];
+  let l2Pool=[];
+  function nextL2Note(){
+    if(l2Pool.length===0) l2Pool=L2_NOTES.slice().sort(()=>Math.random()-0.5);
+    return l2Pool.pop();
+  }
+  function heartCurveXZ(i,n){
+    const t=(i/n)*Math.PI*2;
+    const hx=16*Math.pow(Math.sin(t),3);
+    const hy=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+    return new THREE.Vector3(hx*0.72, 1.4, -hy*0.72 + 1.5);
+  }
+  function clearConstellation(){
+    if(constGroup) scene.remove(constGroup);
+    constGroup=null; constStars=[]; constThreads=[]; constNext=0; growing.length=0; constRing=null;
+  }
+  function buildConstellation(){
+    clearConstellation();
+    constGroup=new THREE.Group(); scene.add(constGroup);
+    for(let i=0;i<L2_N;i++){
+      const pos=heartCurveXZ(i,L2_N), col=(i%3===0)?GOLD:0xff7eb3;
+      const m=new THREE.Mesh(STAR_GEO,
+        new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:0.5,roughness:0.32,metalness:0.2}));
+      m.position.copy(pos); m.rotation.y=Math.random()*Math.PI;
+      const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:softDotTex,color:col,transparent:true,opacity:0.12,depthWrite:false,blending:THREE.AdditiveBlending}));
+      glow.scale.set(2.6,2.6,1); glow.position.copy(pos);
+      constGroup.add(m); constGroup.add(glow);
+      constStars.push({mesh:m,glow:glow,pos:pos,col:col,done:false});
+    }
+    constRing=new THREE.Mesh(new THREE.TorusGeometry(0.85,0.06,8,32),
+      new THREE.MeshBasicMaterial({color:0xfff0d0,transparent:true,opacity:0.85,depthWrite:false}));
+    constRing.rotation.x=Math.PI/2; constGroup.add(constRing);
+  }
+  function addThread(a,b){
+    const dir=new THREE.Vector3().subVectors(b,a), len=dir.length(); dir.normalize();
+    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,len,8),
+      new THREE.MeshBasicMaterial({color:0xffd0e6,transparent:true,opacity:0.95,depthWrite:false}));
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone());
+    mesh.position.copy(a); mesh.scale.y=0.001;
+    constGroup.add(mesh); constThreads.push(mesh);
+    growing.push({mesh:mesh, a:a.clone(), dir:dir.clone(), len:len, t:0});
+  }
+  function setHeartsVisible(v){ for(const h of hearts){ h.group.visible = v && !h.collected; } }
+
+  // Level 3 — heart rain: catch falling hearts before they reach the lake
+  const RAIN_TARGET=18, RAIN_COUNT=9;
+  let fallers=[], rainCaught=0;
+  function resetFaller(f){
+    f.group.position.set((Math.random()-0.5)*2*(BOUND-2), 12+Math.random()*9, (Math.random()-0.5)*2*(BOUND-2));
+    f.vy=4.5+Math.random()*4.5; f.group.visible=true;
+  }
+  function makeFaller(){
+    const golden=Math.random()<0.18, color=golden?GOLD:heartHues[Math.floor(Math.random()*heartHues.length)];
+    const g=new THREE.Group();
+    const m=new THREE.Mesh(HEART_GEO,new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:golden?1.0:0.8,roughness:0.3,metalness:golden?0.25:0.05}));
+    if(golden) m.scale.setScalar(1.25);
+    const glow=new THREE.Mesh(new THREE.SphereGeometry(golden?1.2:0.95,16,16),
+      new THREE.MeshBasicMaterial({color,transparent:true,opacity:golden?0.2:0.15,depthWrite:false}));
+    g.add(m); g.add(glow); scene.add(g);
+    const f={group:g,mesh:m,golden:golden,color:color,vy:0,spin:0.6+Math.random()*1.2};
+    resetFaller(f); fallers.push(f);
+  }
+  function clearRain(){ fallers.forEach(f=>scene.remove(f.group)); fallers=[]; }
+  function buildRain(){ clearRain(); rainCaught=0; for(let i=0;i<RAIN_COUNT;i++) makeFaller(); }
+
+  // Level 4 — Duke the dog: a playful chase, boop him on the head
+  const DUKE_TARGET=10;
+  let duke=null, dukeBooped=0;
+  function dukeNameplate(){
+    const c=document.createElement('canvas'); c.width=256; c.height=96; const x=c.getContext('2d');
+    x.clearRect(0,0,256,96);
+    x.beginPath();
+    if(x.roundRect) x.roundRect(26,18,204,60,30); else x.rect(26,18,204,60);
+    x.fillStyle='rgba(22,13,51,0.72)'; x.fill();
+    x.lineWidth=3; x.strokeStyle='rgba(255,176,207,0.85)'; x.stroke();
+    x.fillStyle='#ffe6f3'; x.textAlign='center'; x.textBaseline='middle';
+    x.font="700 42px 'Fredoka', system-ui, sans-serif"; x.fillText('Duke 🐾',128,50);
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));
+    sp.scale.set(2.7,1.0,1); sp.position.set(0,2.8,0); return sp;
+  }
+  function clearDuke(){ if(duke){ scene.remove(duke.group); if(duke.shadow) scene.remove(duke.shadow); duke=null; } }
+  const dukeStarTex=(function(){
+    const c=document.createElement('canvas'); c.width=64; c.height=64; const x=c.getContext('2d');
+    x.translate(32,32);
+    x.beginPath();
+    for(let i=0;i<5;i++){
+      const a=-Math.PI/2+i*2*Math.PI/5, ox=Math.cos(a)*28, oy=Math.sin(a)*28;
+      if(i===0) x.moveTo(ox,oy); else x.lineTo(ox,oy);
+      const a2=a+Math.PI/5; x.lineTo(Math.cos(a2)*12,Math.sin(a2)*12);
+    }
+    x.closePath(); x.shadowColor='#ffd23a'; x.shadowBlur=8; x.fillStyle='#ffe05a'; x.fill();
+    x.lineWidth=3; x.strokeStyle='#ffb43a'; x.stroke();
+    return new THREE.CanvasTexture(c);
+  })();
+  function spawnDukeStars(g){
+    const stars=[];
+    for(let i=0;i<3;i++){
+      const a=i*2*Math.PI/3;
+      const s=new THREE.Sprite(new THREE.SpriteMaterial({map:dukeStarTex,transparent:true,depthWrite:false}));
+      s.scale.set(0.62,0.62,1); s.position.set(Math.cos(a)*1.0,2.35,Math.sin(a)*1.0);
+      g.add(s); stars.push(s);
+    }
+    return stars;
+  }
+  // soft contact shadow that sits on the ground under Duke
+  const dukeShadowTex=(function(){
+    const c=document.createElement('canvas'); c.width=128; c.height=128; const x=c.getContext('2d');
+    const g=x.createRadialGradient(64,64,4,64,64,64);
+    g.addColorStop(0,'rgba(8,4,22,0.55)'); g.addColorStop(0.55,'rgba(8,4,22,0.26)'); g.addColorStop(1,'rgba(8,4,22,0)');
+    x.fillStyle=g; x.fillRect(0,0,128,128); return new THREE.CanvasTexture(c);
+  })();
+
+  function buildDuke(){
+    clearDuke();
+    const g=new THREE.Group();
+
+    // --- white chihuahua palette ---
+    const furWhite =new THREE.MeshStandardMaterial({color:0xf7f2ea,roughness:0.8});
+    const furShade =new THREE.MeshStandardMaterial({color:0xeae0d2,roughness:0.85}); // soft creamy shading
+    const innerEar =new THREE.MeshStandardMaterial({color:0xf2b3c2,roughness:0.7});
+    const noseMat  =new THREE.MeshStandardMaterial({color:0x2a211d,roughness:0.4,metalness:0.1});
+    const eyeMat   =new THREE.MeshStandardMaterial({color:0x201712,roughness:0.3});
+    const shineMat =new THREE.MeshBasicMaterial({color:0xffffff});
+    const tongueMat=new THREE.MeshStandardMaterial({color:0xff90b0,roughness:0.6});
+
+    // --- slender little body ---
+    const body=new THREE.Mesh(new THREE.SphereGeometry(0.92,28,22),furWhite);
+    body.scale.set(1.4,0.96,0.82); body.position.set(-0.05,0.95,0); g.add(body);
+    const chest=new THREE.Mesh(new THREE.SphereGeometry(0.6,24,20),furWhite);
+    chest.position.set(0.78,0.84,0); g.add(chest);
+
+    // --- apple head (round, with domed forehead + chubby cheeks) ---
+    const head=new THREE.Mesh(new THREE.SphereGeometry(0.66,28,24),furWhite);
+    head.position.set(1.16,1.46,0); g.add(head);
+    const dome=new THREE.Mesh(new THREE.SphereGeometry(0.5,22,18),furWhite);
+    dome.scale.set(0.95,0.82,0.95); dome.position.set(1.22,1.72,0); g.add(dome);
+    [-0.34,0.34].forEach(z=>{ const cheek=new THREE.Mesh(new THREE.SphereGeometry(0.26,16,14),furWhite);
+      cheek.position.set(1.34,1.3,z); g.add(cheek); });
+
+    // --- short pointed muzzle + chin ---
+    const muzzle=new THREE.Mesh(new THREE.SphereGeometry(0.27,22,18),furWhite);
+    muzzle.scale.set(1.15,0.85,0.9); muzzle.position.set(1.64,1.32,0); g.add(muzzle);
+    const chin=new THREE.Mesh(new THREE.SphereGeometry(0.17,16,14),furShade);
+    chin.position.set(1.6,1.16,0); g.add(chin);
+
+    // --- nose + highlight ---
+    const nose=new THREE.Mesh(new THREE.SphereGeometry(0.13,16,14),noseMat);
+    nose.scale.set(1.12,0.92,1.18); nose.position.set(1.9,1.38,0); g.add(nose);
+    const noseShine=new THREE.Mesh(new THREE.SphereGeometry(0.04,10,10),shineMat);
+    noseShine.position.set(1.94,1.43,0.05); g.add(noseShine);
+
+    // --- little tongue ---
+    const tongue=new THREE.Mesh(new THREE.SphereGeometry(0.1,14,12),tongueMat);
+    tongue.scale.set(0.85,0.5,1.0); tongue.position.set(1.78,1.16,0); g.add(tongue);
+
+    // --- big round prominent eyes ---
+    [-0.3,0.3].forEach(z=>{
+      const eye=new THREE.Mesh(new THREE.SphereGeometry(0.19,18,18),eyeMat);
+      eye.position.set(1.42,1.56,z); g.add(eye);
+      const big=new THREE.Mesh(new THREE.SphereGeometry(0.06,10,10),shineMat);
+      big.position.set(1.55,1.64,z+0.05); g.add(big);
+      const tiny=new THREE.Mesh(new THREE.SphereGeometry(0.03,8,8),shineMat);
+      tiny.position.set(1.54,1.49,z-0.05); g.add(tiny);
+    });
+
+    // --- big ERECT pointy ears (pivot at head; flare out + perk forward) ---
+    const ears=[];
+    [-0.34,0.34].forEach(z=>{
+      const side=z>0?1:-1;
+      const piv=new THREE.Group(); piv.position.set(0.98,1.95,z);
+      const tilt=new THREE.Group(); tilt.rotation.x=side*0.5; tilt.rotation.z=-0.12; piv.add(tilt);
+      const ear=new THREE.Mesh(new THREE.ConeGeometry(0.32,0.82,18),furWhite);
+      ear.scale.set(0.5,1.0,1.0); ear.position.set(0,0.4,0); tilt.add(ear);
+      const inner=new THREE.Mesh(new THREE.ConeGeometry(0.2,0.58,18),innerEar);
+      inner.scale.set(0.5,1.0,1.0); inner.position.set(0.07,0.37,0); tilt.add(inner);
+      g.add(piv); ears.push({piv:piv, side:side});
+    });
+
+    // --- thin legs with small paws (pivot at hip) ---
+    const legs=[];
+    [[0.62,0.34,0],[0.62,-0.34,1],[-0.56,0.34,1],[-0.56,-0.34,0]].forEach(p=>{
+      const piv=new THREE.Group(); piv.position.set(p[0],0.74,p[1]);
+      const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.09,0.66,10),furWhite);
+      leg.position.set(0,-0.35,0); piv.add(leg);
+      const paw=new THREE.Mesh(new THREE.SphereGeometry(0.14,14,12),furWhite);
+      paw.scale.set(1.05,0.8,1.2); paw.position.set(0.04,-0.66,0); piv.add(paw);
+      g.add(piv); legs.push({piv:piv, phase:p[2]*Math.PI});
+    });
+
+    // --- collar + heart tag (on theme 💗) ---
+    const collar=new THREE.Mesh(new THREE.TorusGeometry(0.46,0.08,10,24),
+      new THREE.MeshStandardMaterial({color:0xd23b3b,roughness:0.55}));
+    collar.position.set(0.86,1.24,0); collar.rotation.y=Math.PI/2; collar.rotation.x=0.12; g.add(collar);
+    const tag=new THREE.Mesh(HEART_GEO,new THREE.MeshStandardMaterial({color:0xffd27a,emissive:0xffb43a,emissiveIntensity:0.5,roughness:0.35,metalness:0.3}));
+    tag.scale.setScalar(0.45); tag.position.set(0.92,0.84,0); tag.rotation.set(0,-Math.PI/2,0); g.add(tag);
+
+    // --- thin sickle tail curving up over the back (group wags on Y) ---
+    const tail=new THREE.Group(); tail.position.set(-1.32,1.1,0);
+    [[0,0.18,0.16],[0.12,0.46,0.14],[0.3,0.66,0.12],[0.52,0.78,0.11]].forEach(s=>{
+      const m=new THREE.Mesh(new THREE.SphereGeometry(s[2],14,12),furWhite); m.position.set(s[0],s[1],0); tail.add(m); });
+    g.add(tail);
+
+    g.add(dukeNameplate());
+    g.position.set(9,0,-7); scene.add(g);
+
+    // soft contact shadow (separate so it stays flat on the ground)
+    const shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.5,1.7),
+      new THREE.MeshBasicMaterial({map:dukeShadowTex,transparent:true,opacity:0.4,depthWrite:false}));
+    shadow.rotation.x=-Math.PI/2; shadow.position.set(9,-0.57,-7); scene.add(shadow);
+
+    duke={group:g, tail:tail, legs:legs, ears:ears, stars:[], shadow:shadow, vx:3, vz:1.5, hopT:0, spinT:0, cooldown:1.0};
+  }
+
+  // ---------- State machine ----------
+  function resetCommon(){
+    won=false; combo=0; lastCollect=0; player.position.set(0,0.4,0); vel.set(0,0,0);
+    player.rotation.set(0,0,0); core.scale.set(1,1,1); camShake=0;
+    trail.forEach(t=>scene.remove(t.mesh)); trail.length=0;
+    bursts.forEach(b=>{ b.mesh.visible=false; burstPool.push(b.mesh); }); bursts.length=0;
+    rings.forEach(r=>{ r.mesh.visible=false; ringPool.push(r.mesh); }); rings.length=0;
+    finale.forEach(f=>scene.remove(f.mesh)); finale=[];
+    hint.style.opacity='1'; comboEl.classList.remove('show');
+    notesEl.innerHTML=''; barFill.style.width='0%'; arrowEl.style.opacity='0';
+    camPop=0; camera.fov=58; camera.updateProjectionMatrix();
+  }
+  function resetLevel(n){
+    level=n; resetCommon();
+    levelBadge.textContent='Level '+n; levelBadge.classList.add('show');
+    camera.position.set(0,16,24);
+    if(n===1){
+      clearConstellation(); clearRain(); clearDuke(); placeHearts(); collected=0;
+      pipEl.textContent='♥'; scoreNum.textContent=`0 / ${TOTAL_HEARTS}`;
+      hint.textContent=isTouch?'Use the joystick to catch the hearts':'Collect all the hearts with the arrows / WASD';
+    } else if(n===2){
+      setHeartsVisible(false); clearRain(); clearDuke(); buildConstellation(); collected=0;
+      pipEl.textContent='✦'; scoreNum.textContent=`0 / ${L2_N}`;
+      hint.textContent=isTouch?"Link the stars in order with the joystick":"Link the stars in order to draw a heart";
+    } else if(n===3){
+      setHeartsVisible(false); clearConstellation(); clearDuke(); buildRain();
+      pipEl.textContent='♥'; scoreNum.textContent=`0 / ${RAIN_TARGET}`;
+      hint.textContent='Catch the falling hearts before they reach the water';
+    } else {
+      setHeartsVisible(false); clearConstellation(); clearRain(); buildDuke(); dukeBooped=0;
+      pipEl.textContent='🐾'; scoreNum.textContent=`0 / ${DUKE_TARGET}`;
+      hint.textContent=isTouch?'Chase Duke and bonk him on the head!':'Chase Duke and bonk him on the head!';
+    }
+  }
+  function startLevel(n){
+    if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    if(actx && actx.state==='suspended') actx.resume();
+    startMusic();
+    document.getElementById('startVeil').classList.add('hidden');
+    document.getElementById('winVeil').classList.add('hidden');
+    document.getElementById('winMsg').classList.remove('show');
+    resetLevel(n); running=true;
+  }
+  function showMenu(){
+    running=false; won=false;
+    levelBadge.classList.remove('show');
+    updateMenu();
+    document.getElementById('winVeil').classList.add('hidden');
+    document.getElementById('winMsg').classList.remove('show');
+    document.getElementById('startVeil').classList.remove('hidden');
+  }
+  document.getElementById('lvl1Btn').addEventListener('click',()=>startLevel(1));
+  document.getElementById('lvl2Btn').addEventListener('click',()=>startLevel(2));
+  document.getElementById('lvl3Btn').addEventListener('click',()=>startLevel(3));
+  document.getElementById('lvl4Btn').addEventListener('click',()=>startLevel(4));
+
+  // ----- progression: completed levels + final surprise -----
+  const completed=new Set();
+  try{ const s=localStorage.getItem('amelia_levels_done'); if(s) JSON.parse(s).forEach(n=>completed.add(n)); }catch(e){}
+  function saveCompleted(){ try{ localStorage.setItem('amelia_levels_done', JSON.stringify([...completed])); }catch(e){} }
+  const LVL_BASE={1:'Level 1 · Hearts in the Sky',2:'Level 2 · The Constellation',3:'Level 3 · Heart Rain',4:'Level 4 · Duke Beating'};
+  function updateMenu(){
+    for(let n=1;n<=4;n++){ const b=document.getElementById('lvl'+n+'Btn'); if(b) b.textContent=LVL_BASE[n]+(completed.has(n)?'   ✓':''); }
+    document.getElementById('finaleBtn').style.display = (completed.size>=4) ? '' : 'none';
+  }
+  function markComplete(n){ completed.add(n); saveCompleted(); }
+  function startFinale(){
+    if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    if(actx && actx.state==='suspended') actx.resume(); startMusic();
+    document.getElementById('startVeil').classList.add('hidden');
+    levelBadge.classList.remove('show');
+    clearConstellation(); clearRain(); clearDuke(); setHeartsVisible(false);
+    resetCommon();
+    level=0; running=false; won=true; winStart=performance.now();
+    fanfare(); buildFinale();
+    for(let i=0;i<10;i++) setTimeout(()=>burst(new THREE.Vector3((Math.random()-0.5)*16,3+Math.random()*7,(Math.random()-0.5)*16),heartHues[i%heartHues.length],true),i*120);
+    showWinUI("You did it all, Amelia 💗",
+      "Four little worlds — and you lit up every one of them, just like you light up mine.<br>Thank you for being you. I love you, today and always.",
+      {next:false,menu:true,delay:1400});
+  }
+  document.getElementById('finaleBtn').addEventListener('click',startFinale);
+  updateMenu();
+  document.getElementById('replayBtn').addEventListener('click',()=>startLevel(level));
+  document.getElementById('nextBtn').addEventListener('click',()=>startLevel(level+1));
+  document.getElementById('menuBtn').addEventListener('click',showMenu);
+
+  function showWinUI(title,text,opts){
+    document.getElementById('winTitle').innerHTML=title;
+    document.getElementById('winText').innerHTML=text;
+    const nb=document.getElementById('nextBtn');
+    nb.style.display=opts.next?'':'none';
+    if(opts.next && opts.nextLabel) nb.textContent=opts.nextLabel;
+    document.getElementById('menuBtn').style.display=opts.menu?'':'none';
+    document.getElementById('winVeil').classList.remove('hidden');
+    setTimeout(()=>document.getElementById('winMsg').classList.add('show'),opts.delay||900);
+  }
+  function winLevel1(now){
+    won=true; running=false; winStart=now; markComplete(1); fanfare(); buildFinale();
+    for(let i=0;i<6;i++) setTimeout(()=>burst(new THREE.Vector3((Math.random()-0.5)*12,4+Math.random()*5,(Math.random()-0.5)*12),heartHues[i%heartHues.length],true),i*130);
+    showWinUI("Amelia,<br>you make my heart race 💗",
+      "Every heart in this sky was a reason to love you.<br>And believe me, there were far more than fourteen.",
+      {next:true,nextLabel:"Level 2 →",menu:false,delay:900});
+  }
+  function winLevel2(now){
+    won=true; running=false; winStart=now; markComplete(2); fanfare();
+    if(constRing) constRing.visible=false;
+    constStars.forEach((s,i)=> setTimeout(()=>{ burst(s.pos.clone(), s.col, true); }, 300+i*80));
+    showWinUI("A heart in the sky ✨",
+      "You linked all the stars and drew a heart, just for us.",
+      {next:true,nextLabel:"Level 3 →",menu:true,delay:1600});
+  }
+  function winLevel3(now){
+    won=true; running=false; winStart=now; markComplete(3); fanfare(); buildFinale();
+    clearRain();
+    for(let i=0;i<7;i++) setTimeout(()=>burst(new THREE.Vector3((Math.random()-0.5)*12,4+Math.random()*5,(Math.random()-0.5)*12),heartHues[i%heartHues.length],true),i*120);
+    showWinUI("You caught them all 💗",
+      "Every falling heart, gathered in your hands — that's exactly what you do to mine.",
+      {next:true,nextLabel:"Level 4 →",menu:true,delay:900});
+  }
+  function winLevel4(now){
+    won=true; running=false; winStart=now; markComplete(4); fanfare(); buildFinale();
+    if(duke){ duke.group.position.set(0,0,0); duke.vx=0; duke.vz=0; if(duke.shadow) duke.shadow.position.set(0,-0.57,0); }
+    for(let i=0;i<6;i++) setTimeout(()=>burst(new THREE.Vector3((Math.random()-0.5)*12,4+Math.random()*5,(Math.random()-0.5)*12),heartHues[i%heartHues.length],true),i*130);
+    showWinUI("You beat Duke! 🐾💗",
+      "Well done — now I'm the only one who loves you.",
+      {next:false,menu:true,delay:900});
+  }
+
+  // ---------- Loop ----------
+  let last=performance.now(), trailTimer=0;
+  function tick(now){
+    const dt=Math.min((now-last)/1000,0.05); last=now;
+
+    stars.rotation.y+=dt*0.01; fireflies.rotation.y-=dt*0.02;
+    stars.material.opacity=0.8+Math.sin(now*0.0013)*0.12;
+    ring.material.opacity=0.28+Math.sin(now*0.002)*0.08;
+    moon.rotation.y+=dt*0.012;
+    moonHalo.scale.setScalar(1+Math.sin(now*0.0012)*0.04);
+    moonHalo2.scale.setScalar(1+Math.sin(now*0.0012+1)*0.06);
+    moonHalo2.material.opacity=0.08+Math.sin(now*0.0012)*0.03;
+    if(nameSprite) nameSprite.material.opacity=0.34+Math.sin(now*0.0016)*0.1;
+    halo.scale.setScalar(1+Math.sin(now*0.005)*0.08);
+    aura.scale.setScalar(1+Math.sin(now*0.006)*0.1); aura.material.opacity=0.26+Math.sin(now*0.006)*0.1;
+    innerCore.scale.setScalar(1+Math.sin(now*0.009)*0.12);
+
+    // light cast on the water follows the player
+    spot.position.x=player.position.x; spot.position.z=player.position.z;
+    spot.material.opacity=0.38+Math.sin(now*0.005)*0.08+Math.min(vel.length()*0.018,0.22);
+    spot.scale.setScalar(1+Math.sin(now*0.004)*0.08);
+
+    // ---------- Weather evolution ----------
+    weatherTimer-=dt;
+    if(weatherTimer<=0){
+      let ni; do{ ni=Math.floor(Math.random()*WEATHERS.length); }while(ni===weatherIdx);
+      setWeather(ni); weatherTimer=20+Math.random()*10;
+    }
+    scene.fog.color.lerp(fogTarget, Math.min(dt*0.6,1));
+    scene.fog.density += (fogDTarget-scene.fog.density)*Math.min(dt*0.6,1);
+    wind += (windTarget-wind)*Math.min(dt*0.8,1);
+    rainAmt += (rainTarget-rainAmt)*Math.min(dt*0.7,1);
+    auroraAmt += (auroraTarget-auroraAmt)*Math.min(dt*0.7,1);
+    rain.material.opacity=rainAmt*0.85;
+    if(rainAmt>0.02){
+      const p=rainGeo.attributes.position.array;
+      for(let i=0;i<RAIN_N;i++){
+        p[i*3+1]-=rainSpd[i]*dt; p[i*3]+=wind*0.5*dt;
+        if(p[i*3+1]<-1){ p[i*3+1]=28+Math.random()*4; p[i*3]=(Math.random()-0.5)*64; }
+      }
+      rainGeo.attributes.position.needsUpdate=true;
+    }
+    aurora.material.opacity=auroraAmt*0.5;
+    aurora.rotation.z=Math.sin(now*0.0004)*0.05;
+    aurora.position.x=Math.sin(now*0.0002)*8;
+
+    // water reflection shimmer + ripples
+    refl.material.opacity=0.42+Math.sin(now*0.0024)*0.14;
+    refl.scale.x=1+Math.sin(now*0.0019)*0.12;
+    for(const rp of ripples){
+      rp.t+=dt*0.5; if(rp.t>1){ rp.t-=1; rp.mesh.position.set((Math.random()-0.5)*20,-0.76,(Math.random()-0.5)*20-4); }
+      const sc=1+rp.t*7; rp.mesh.scale.set(sc,sc,sc);
+      rp.mesh.material.opacity=0.3*(1-rp.t);
+    }
+    // shooting stars
+    shootTimer-=dt;
+    if(shootTimer<=0){ spawnShootingStar(); const sh=WEATHERS[weatherIdx].shoot; shootTimer=sh[0]+Math.random()*(sh[1]-sh[0]); }
+    for(let i=shooting.length-1;i>=0;i--){
+      const s=shooting[i]; s.life-=dt*0.5;
+      s.grp.position.addScaledVector(s.v,dt);
+      const o=Math.sin(Math.max(0,Math.min(1,1-s.life))*Math.PI);
+      s.head.material.opacity=o; s.tail.material.opacity=o*0.55;
+      if(s.life<=0||s.grp.position.x<-55){ scene.remove(s.grp); shooting.splice(i,1); }
+    }
+
+    // petals
+    for(const m of petals){
+      const u=m.userData;
+      m.position.y-=u.fall*dt;
+      m.position.x+=Math.sin(now*0.001+u.phase)*u.sway*dt + wind*dt;
+      m.rotation.x+=u.rot*dt; m.rotation.y+=u.rot*0.7*dt;
+      if(m.position.x>BOUND*1.7) m.position.x=-BOUND*1.7;
+      else if(m.position.x<-BOUND*1.7) m.position.x=BOUND*1.7;
+      if(m.position.y<-1) resetPetal(m,false);
+    }
+    // orbiters
+    for(const o of orbiters){
+      o.a+=o.sp*dt;
+      o.mesh.position.set(Math.cos(o.a)*o.r, Math.sin(o.a*0.8+o.tilt)*0.4, Math.sin(o.a)*o.r);
+    }
+    // reactive fireflies
+    for(const gf of glowflies){
+      const m=gf.mesh;
+      gf.vx+=((gf.hx-m.position.x)*0.4 + (Math.random()-0.5)*1.2)*dt;
+      gf.vy+=((gf.hy-m.position.y)*0.5 + (Math.random()-0.5)*0.8)*dt;
+      gf.vz+=((gf.hz-m.position.z)*0.4 + (Math.random()-0.5)*1.2)*dt;
+      const dx=player.position.x-m.position.x, dy=player.position.y-m.position.y, dz=player.position.z-m.position.z;
+      const dist=Math.hypot(dx,dy,dz)||0.001, REACT=12; let near=0;
+      if(dist<REACT){ near=1-dist/REACT; const a=near*9*dt; gf.vx+=dx/dist*a; gf.vy+=dy/dist*a*0.6; gf.vz+=dz/dist*a; }
+      gf.vx*=0.92; gf.vy*=0.92; gf.vz*=0.92;
+      const sp=Math.hypot(gf.vx,gf.vy,gf.vz), MAX=6; if(sp>MAX){ const k=MAX/sp; gf.vx*=k;gf.vy*=k;gf.vz*=k; }
+      m.position.x+=gf.vx*dt; m.position.y+=gf.vy*dt; m.position.z+=gf.vz*dt;
+      if(m.position.y<0.4) m.position.y=0.4;
+      m.material.opacity=0.45+Math.sin(now*0.004*gf.sp+gf.phase)*0.3 + near*0.4;
+      m.scale.setScalar(0.8+near*1.1);
+    }
+
+    if(running){
+      const dir=_dir.set(0,0,0);
+      if(keys['arrowup']||keys['w']||keys['z']) dir.z-=1;
+      if(keys['arrowdown']||keys['s']) dir.z+=1;
+      if(keys['arrowleft']||keys['a']||keys['q']) dir.x-=1;
+      if(keys['arrowright']||keys['d']) dir.x+=1;
+      dir.x+=move.x; dir.z+=move.y;
+      if(dir.lengthSq()>1) dir.normalize();
+
+      const SPEED=17;
+      vel.x+=(dir.x*SPEED-vel.x)*Math.min(dt*8,1);
+      vel.z+=(dir.z*SPEED-vel.z)*Math.min(dt*8,1);
+      player.position.x=Math.max(-BOUND,Math.min(BOUND,player.position.x+vel.x*dt));
+      player.position.z=Math.max(-BOUND,Math.min(BOUND,player.position.z+vel.z*dt));
+      player.position.y=0.4+Math.sin(now*0.004)*0.18;
+      // lively orb: lean into motion, squash & spin with speed
+      const _spd=Math.hypot(vel.x,vel.z);
+      core.rotation.y+=dt*(0.6+_spd*0.05);
+      const _sq=Math.min(_spd*0.012,0.16); core.scale.set(1+_sq,1-_sq*0.8,1+_sq);
+      const _tx=Math.max(-0.3,Math.min(0.3, vel.z*0.018)), _tz=Math.max(-0.3,Math.min(0.3,-vel.x*0.018));
+      player.rotation.x+=(_tx-player.rotation.x)*Math.min(dt*6,1);
+      player.rotation.z+=(_tz-player.rotation.z)*Math.min(dt*6,1);
+      if(vel.lengthSq()>1.2) hint.style.opacity='0';
+
+      trailTimer+=dt;
+      if(trailTimer>0.04 && vel.lengthSq()>1){ spawnTrail(); trailTimer=0; }
+
+      camera.position.lerp(_cam.set(player.position.x*0.6,11,player.position.z*0.6+15),Math.min(dt*3,1));
+      camera.lookAt(player.position.x*0.4,1.5,player.position.z*0.4);
+      if(camShake>0 && !reduceMotion){
+        camShake=Math.max(0,camShake-dt*2.4);
+        const k=camShake*0.4;
+        camera.position.x+=(Math.random()-0.5)*k; camera.position.y+=(Math.random()-0.5)*k;
+        camera.lookAt(player.position.x*0.4,1.5,player.position.z*0.4);
+      }
+
+      if(level===1){
+      let remaining=0, nearest=null, nearD=Infinity;
+      for(const h of hearts){
+        if(h.collected) continue;
+        remaining++;
+        h.group.rotation.y+=dt*h.spin;
+        h.group.position.y=h.baseY+Math.sin(now*0.002+h.phase)*(h.runner?0.55:0.4);
+        h.mesh.scale.setScalar((h.golden?1.3:1)*(1+Math.sin(now*0.004+h.phase)*0.06));
+        let dx=h.group.position.x-player.position.x, dz=h.group.position.z-player.position.z;
+        let d2=dx*dx+dz*dz;
+        if(h.runner){
+          // playful flee: drift around, and dart away when the light gets close
+          const dist=Math.sqrt(d2)||0.001, FLEE_R=7.6;
+          if(dist<FLEE_R){ const f=(1-dist/FLEE_R)*38*dt; h.vx+=dx/dist*f; h.vz+=dz/dist*f; }
+          h.vx+=Math.cos(now*0.0007+h.phase)*1.6*dt; h.vz+=Math.sin(now*0.0006+h.phase)*1.6*dt;
+          const sp=Math.hypot(h.vx,h.vz), MAX=13.5;
+          if(sp>MAX){ h.vx=h.vx/sp*MAX; h.vz=h.vz/sp*MAX; }
+          h.vx*=0.99; h.vz*=0.99;
+          h.group.position.x+=h.vx*dt; h.group.position.z+=h.vz*dt;
+          const B=BOUND-1;
+          if(h.group.position.x> B){ h.group.position.x= B; h.vx=-Math.abs(h.vx); }
+          if(h.group.position.x<-B){ h.group.position.x=-B; h.vx= Math.abs(h.vx); }
+          if(h.group.position.z> B){ h.group.position.z= B; h.vz=-Math.abs(h.vz); }
+          if(h.group.position.z<-B){ h.group.position.z=-B; h.vz= Math.abs(h.vz); }
+          h.glow.material.opacity=(h.golden?0.22:0.16)+0.12+Math.sin(now*0.008+h.phase)*0.08;
+          dx=h.group.position.x-player.position.x; dz=h.group.position.z-player.position.z; d2=dx*dx+dz*dz;
+        } else if(d2<MAGNET_R*MAGNET_R && d2>0.0001){
+          const pull=Math.min(dt*6,1)*(1-Math.sqrt(d2)/MAGNET_R);
+          h.group.position.x-=dx*pull; h.group.position.z-=dz*pull;
+          dx=h.group.position.x-player.position.x; dz=h.group.position.z-player.position.z; d2=dx*dx+dz*dz;
+        }
+        if(d2<nearD){ nearD=d2; nearest=h; }
+        if(d2 < COLLECT_R*COLLECT_R){
+          h.collected=true; h.group.visible=false; remaining--;
+          burst(h.group.position.clone(),h.color,h.golden);
+          popRing(h.group.position.clone(),h.color,h.golden);
+          chime(collected,h.golden);
+          flash(h.golden?'255,217,160':'255,126,179');
+          if(h.golden){ camPop=1; camShake=0.5; }
+          collected += h.golden?2:1;
+          if(collected>TOTAL_HEARTS) collected=TOTAL_HEARTS;
+          scoreNum.textContent=`${collected} / ${TOTAL_HEARTS}`;
+          barFill.style.width=(collected/TOTAL_HEARTS*100)+'%';
+          popScore();
+          showNote(nextNote(),h.golden);
+          if(now-lastCollect<2600){ combo++; if(combo>=2) showCombo(combo); } else combo=1;
+          lastCollect=now;
+          if(hearts.every(x=>x.collected)) winLevel1(now);
+        }
+      }
+      // guide arrow toward nearest heart when only a few remain
+      if(nearest && remaining<=3){
+        const v=_proj.copy(nearest.group.position).project(camera);
+        const sx=(v.x*0.5+0.5)*window.innerWidth, sy=(-v.y*0.5+0.5)*window.innerHeight;
+        const cx=window.innerWidth/2, cy=window.innerHeight/2;
+        const dcx=sx-cx, dcy=sy-cy, dist=Math.hypot(dcx,dcy);
+        if(dist>150 || v.z>1){
+          let ang=Math.atan2(dcy,dcx); if(v.z>1) ang+=Math.PI;
+          const rad=Math.min(window.innerWidth,window.innerHeight)*0.28;
+          arrowEl.style.left=(cx+Math.cos(ang)*rad)+'px';
+          arrowEl.style.top=(cy+Math.sin(ang)*rad)+'px';
+          arrowEl.style.transform=`translate(-50%,-50%) rotate(${ang*180/Math.PI+90}deg)`;
+          arrowEl.style.opacity='0.85';
+        } else arrowEl.style.opacity='0';
+      } else arrowEl.style.opacity='0';
+
+      // camera punch on golden heart
+      if(camPop>0){ camPop=Math.max(0,camPop-dt*3); camera.fov=58-camPop*5; camera.updateProjectionMatrix(); }
+      } else if(level===2){
+        // ----- Level 2: link the stars in order to draw a heart -----
+        for(let i=0;i<constStars.length;i++){
+          const s=constStars[i];
+          s.mesh.rotation.y+=dt*0.7;
+          if(s.done){ s.mesh.scale.setScalar(1); s.glow.material.opacity=0.2; s.mesh.material.emissiveIntensity=0.55; }
+          else if(i===constNext){ const k=1.15+Math.sin(now*0.006)*0.25; s.mesh.scale.setScalar(k); s.glow.material.opacity=0.3+Math.sin(now*0.006)*0.12; s.mesh.material.emissiveIntensity=1.1; }
+          else { s.mesh.scale.setScalar(0.78); s.glow.material.opacity=0.07; s.mesh.material.emissiveIntensity=0.25; }
+        }
+        const act=constStars[constNext];
+        if(constRing){
+          if(act){ constRing.visible=true; constRing.position.copy(act.pos); constRing.rotation.z+=dt*1.6; constRing.scale.setScalar(1+Math.sin(now*0.006)*0.12); }
+          else constRing.visible=false;
+        }
+        if(act){
+          const dx=act.pos.x-player.position.x, dz=act.pos.z-player.position.z;
+          if(dx*dx+dz*dz < COLLECT_R*COLLECT_R){
+            act.done=true;
+            burst(act.pos.clone(), act.col, false);
+            popRing(act.pos.clone(), act.col, false);
+            chime(constNext, act.col===GOLD);
+            flash(act.col===GOLD?'255,217,160':'255,126,179');
+            showNote(nextL2Note(), act.col===GOLD);
+            if(constNext>0) addThread(constStars[constNext-1].pos, act.pos);
+            constNext++; collected=constNext;
+            scoreNum.textContent=`${constNext} / ${L2_N}`;
+            barFill.style.width=(constNext/L2_N*100)+'%';
+            popScore();
+            if(constNext>=L2_N){ addThread(constStars[L2_N-1].pos, constStars[0].pos); winLevel2(now); }
+          }
+          const v=_proj.copy(act.pos).project(camera);
+          const sx=(v.x*0.5+0.5)*window.innerWidth, sy=(-v.y*0.5+0.5)*window.innerHeight;
+          const cx=window.innerWidth/2, cy=window.innerHeight/2;
+          const dcx=sx-cx, dcy=sy-cy, dist=Math.hypot(dcx,dcy);
+          if(dist>140 || v.z>1){
+            let ang=Math.atan2(dcy,dcx); if(v.z>1) ang+=Math.PI;
+            const rad=Math.min(window.innerWidth,window.innerHeight)*0.28;
+            arrowEl.style.left=(cx+Math.cos(ang)*rad)+'px';
+            arrowEl.style.top=(cy+Math.sin(ang)*rad)+'px';
+            arrowEl.style.transform=`translate(-50%,-50%) rotate(${ang*180/Math.PI+90}deg)`;
+            arrowEl.style.opacity='0.9';
+          } else arrowEl.style.opacity='0';
+        }
+      } else if(level===3){
+        // ----- Level 3: heart rain — catch the falling hearts -----
+        for(const f of fallers){
+          f.group.rotation.y+=dt*f.spin;
+          f.group.position.y-=f.vy*dt;
+          const dx=f.group.position.x-player.position.x, dy=f.group.position.y-player.position.y, dz=f.group.position.z-player.position.z;
+          if(dx*dx+dy*dy+dz*dz < 2.8*2.8){
+            burst(f.group.position.clone(), f.color, f.golden);
+            popRing(f.group.position.clone(), f.color, f.golden);
+            chime(rainCaught, f.golden);
+            flash(f.golden?'255,217,160':'255,126,179');
+            if(f.golden) camShake=0.45;
+            if(now-lastCollect<2000){ combo++; if(combo>=2) showCombo(combo); } else combo=1;
+            lastCollect=now;
+            rainCaught += f.golden?2:1; if(rainCaught>RAIN_TARGET) rainCaught=RAIN_TARGET;
+            scoreNum.textContent=`${rainCaught} / ${RAIN_TARGET}`;
+            barFill.style.width=(rainCaught/RAIN_TARGET*100)+'%';
+            popScore();
+            resetFaller(f);
+            if(rainCaught>=RAIN_TARGET) winLevel3(now);
+          } else if(f.group.position.y < -0.5){
+            burst(new THREE.Vector3(f.group.position.x,-0.55,f.group.position.z), 0xbfe3ff, false);
+            popRing(new THREE.Vector3(f.group.position.x,-0.55,f.group.position.z), 0xbfe3ff, false);
+            resetFaller(f);
+          }
+        }
+        arrowEl.style.opacity='0';
+      } else {
+        // ----- Level 4: chase Duke and boop him -----
+        const d=duke;
+        if(d){
+          const dx=d.group.position.x-player.position.x, dz=d.group.position.z-player.position.z;
+          const dist=Math.hypot(dx,dz)||0.001, FLEE=8.5;
+          if(dist<FLEE){ const f=(1-dist/FLEE)*30*dt; d.vx+=dx/dist*f; d.vz+=dz/dist*f; }
+          d.vx+=Math.cos(now*0.0008+1)*2*dt; d.vz+=Math.sin(now*0.0007)*2*dt;
+          const sp=Math.hypot(d.vx,d.vz), MAX=Math.min(12+dukeBooped*0.45,15.8); if(sp>MAX){ d.vx=d.vx/sp*MAX; d.vz=d.vz/sp*MAX; }
+          d.vx*=0.985; d.vz*=0.985;
+          d.group.position.x+=d.vx*dt; d.group.position.z+=d.vz*dt;
+          const B=BOUND-1.5;
+          if(d.group.position.x> B){ d.group.position.x= B; d.vx=-Math.abs(d.vx); }
+          if(d.group.position.x<-B){ d.group.position.x=-B; d.vx= Math.abs(d.vx); }
+          if(d.group.position.z> B){ d.group.position.z= B; d.vz=-Math.abs(d.vz); }
+          if(d.group.position.z<-B){ d.group.position.z=-B; d.vz= Math.abs(d.vz); }
+          d.spinT=Math.max(0,(d.spinT||0)-dt);
+          if(d.spinT>0){ d.group.rotation.y+=18*dt; }
+          else {
+            if(d.stars.length){ d.stars.forEach(s=>d.group.remove(s)); d.stars=[]; }
+            if(sp>0.5){ const yaw=Math.atan2(-d.vz,d.vx); let diff=yaw-d.group.rotation.y; while(diff>Math.PI)diff-=2*Math.PI; while(diff<-Math.PI)diff+=2*Math.PI; d.group.rotation.y+=diff*Math.min(dt*6,1); }
+          }
+          let hopY=0, ph=0; if(d.hopT>0){ d.hopT=Math.max(0,d.hopT-dt); ph=1-d.hopT/0.6; hopY=Math.sin(ph*Math.PI)*1.05; }
+          d.group.position.y=hopY + Math.abs(Math.sin(now*0.013))*0.1;
+          if(d.shadow){ const lift=Math.max(0,d.group.position.y); const ss=1-Math.min(lift,1.2)*0.16;
+            d.shadow.position.set(d.group.position.x,-0.57,d.group.position.z);
+            d.shadow.scale.set(ss,ss,1); d.shadow.material.opacity=0.4*Math.max(0.22,1-lift*0.45); }
+          const st=Math.sin(ph*Math.PI); d.group.scale.set(1-0.12*st,1+0.22*st,1-0.12*st);
+          const trot=Math.min(sp/7,1);
+          for(const L of d.legs) L.piv.rotation.x=Math.sin(now*0.022+L.phase)*0.6*trot;
+          for(const E of d.ears) E.piv.rotation.x=0.12+Math.sin(now*0.02+E.side)*0.18+hopY*0.5;
+          d.tail.rotation.y=Math.sin(now*0.02)*0.7;
+          d.cooldown=Math.max(0,d.cooldown-dt);
+          if(dist<2.3 && d.cooldown<=0){
+            d.cooldown=0.7; d.hopT=0.6; d.spinT=0.6; bonk(); woof();
+            d.stars.forEach(s=>d.group.remove(s)); d.stars=spawnDukeStars(d.group);
+            burst(new THREE.Vector3(d.group.position.x,1.9,d.group.position.z), 0xffe06a, true);
+            burst(new THREE.Vector3(d.group.position.x,0.25,d.group.position.z), 0xe6e2da, false);
+            flash('255,217,160');
+            const wp=new THREE.Vector3(d.group.position.x,2.0,d.group.position.z).project(camera);
+            showBonkWord((wp.x*0.5+0.5)*window.innerWidth,(-wp.y*0.5+0.5)*window.innerHeight);
+            dukeBooped++; if(dukeBooped>DUKE_TARGET) dukeBooped=DUKE_TARGET;
+            scoreNum.textContent=`${dukeBooped} / ${DUKE_TARGET}`;
+            barFill.style.width=(dukeBooped/DUKE_TARGET*100)+'%'; popScore();
+            d.vx+=dx/dist*11; d.vz+=dz/dist*11;
+            if(dukeBooped>=DUKE_TARGET) winLevel4(now);
+          }
+          // guide arrow toward Duke
+          const v=_proj.set(d.group.position.x,1.4,d.group.position.z).project(camera);
+          const sx=(v.x*0.5+0.5)*window.innerWidth, sy=(-v.y*0.5+0.5)*window.innerHeight;
+          const cx=window.innerWidth/2, cy=window.innerHeight/2;
+          const dcx=sx-cx, dcy=sy-cy, ds=Math.hypot(dcx,dcy);
+          if(ds>150 || v.z>1){
+            let ang=Math.atan2(dcy,dcx); if(v.z>1) ang+=Math.PI;
+            const rad=Math.min(window.innerWidth,window.innerHeight)*0.28;
+            arrowEl.style.left=(cx+Math.cos(ang)*rad)+'px';
+            arrowEl.style.top=(cy+Math.sin(ang)*rad)+'px';
+            arrowEl.style.transform=`translate(-50%,-50%) rotate(${ang*180/Math.PI+90}deg)`;
+            arrowEl.style.opacity='0.85';
+          } else arrowEl.style.opacity='0';
+        }
+      }
+    } else if(won){
+      arrowEl.style.opacity='0';
+      if(level===2){
+        camera.position.x+=(0 - camera.position.x)*Math.min(dt*1.4,1);
+        camera.position.y+=(30 - camera.position.y)*Math.min(dt*1.4,1);
+        camera.position.z+=(8 - camera.position.z)*Math.min(dt*1.4,1);
+        camera.lookAt(0,1.4,1.5);
+        const k=1+Math.sin(now*0.005)*0.18;
+        for(const s of constStars){ s.mesh.scale.setScalar(k); s.glow.material.opacity=0.28; s.mesh.material.emissiveIntensity=0.9; }
+        for(const th of constThreads){ th.material.opacity=0.78+Math.sin(now*0.004)*0.2; }
+      } else {
+        const p=Math.min((now-winStart)/1800,1);
+        const e=1-Math.pow(1-p,3);
+        for(const f of finale){
+          f.mesh.position.lerpVectors(f.start,f.target,e);
+          if(p>=1){ const s=0.6+Math.sin(now*0.005+f.target.x)*0.08; f.mesh.scale.setScalar(s); f.mesh.rotation.y+=dt*0.6; }
+        }
+        camera.position.x+=(Math.sin(now*0.0004)*4 - camera.position.x)*Math.min(dt*1.5,1);
+        camera.position.y+=(9 - camera.position.y)*Math.min(dt*1.5,1);
+        camera.position.z+=(17 - camera.position.z)*Math.min(dt*1.5,1);
+        camera.lookAt(0,7,0);
+      }
+    } else {
+      camera.position.x=Math.sin(now*0.0003)*4;
+      camera.lookAt(0,1.5,0);
+    }
+
+    for(let i=trail.length-1;i>=0;i--){
+      const t=trail[i]; t.life-=dt*1.6;
+      if(t.life<=0){scene.remove(t.mesh);trail.splice(i,1);continue;}
+      t.mesh.material.opacity=t.life*0.5; t.mesh.scale.setScalar(t.life);
+    }
+    for(let i=bursts.length-1;i>=0;i--){
+      const b=bursts[i]; b.life-=dt*1.1;
+      if(b.life<=0){ b.mesh.visible=false; burstPool.push(b.mesh); bursts.splice(i,1); continue; }
+      b.vy-=9*dt; const m=b.mesh;
+      m.position.x+=b.vx*dt; m.position.y+=b.vy*dt; m.position.z+=b.vz*dt;
+      m.rotation.x+=b.sx*dt; m.rotation.y+=b.sy*dt; m.rotation.z+=b.sz*dt;
+      m.material.opacity=b.life; m.scale.setScalar(b.life);
+    }
+
+    for(let i=rings.length-1;i>=0;i--){
+      const r=rings[i]; r.life-=dt*1.8;
+      if(r.life<=0){ r.mesh.visible=false; ringPool.push(r.mesh); rings.splice(i,1); continue; }
+      const e=1-Math.pow(r.life,1.6);
+      r.mesh.scale.setScalar(0.4+e*r.max);
+      r.mesh.material.opacity=r.life*r.life*0.8;
+      r.mesh.lookAt(camera.position);
+    }
+
+    for(let i=growing.length-1;i>=0;i--){
+      const g=growing[i]; g.t=Math.min(1,g.t+dt*3.5);
+      g.mesh.scale.y=Math.max(0.001,g.t);
+      g.mesh.position.copy(g.a).addScaledVector(g.dir, g.len*g.t*0.5);
+      if(g.t>=1) growing.splice(i,1);
+    }
+
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  placeHearts();
+  requestAnimationFrame(tick);
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){
+      if(musicNodes && actx){ musicNodes.master.gain.cancelScheduledValues(actx.currentTime); musicNodes.master.gain.setTargetAtTime(0, actx.currentTime, 0.2); }
+    } else {
+      last=performance.now();
+      if(actx && actx.state==='suspended') actx.resume();
+      if(musicOn && musicNodes && actx){ musicNodes.master.gain.setTargetAtTime(0.16, actx.currentTime, 0.4); }
+    }
+  });
+
+  addEventListener('resize',()=>{
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    if(composer) composer.setSize(window.innerWidth,window.innerHeight);
+    if(bloomPass) bloomPass.setSize(window.innerWidth,window.innerHeight);
+  });
+})();
+</script>
+</body>
+</html>
